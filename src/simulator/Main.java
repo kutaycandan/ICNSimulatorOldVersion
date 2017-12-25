@@ -11,7 +11,7 @@ public class Main {
 	static ArrayList <Edge> edges = new ArrayList<Edge>();
 	static ArrayList <Prefix> prefixes = new ArrayList<Prefix>();
 	public static void main(String[] args) {
-		//initialize();
+		initialize();
 		
 	}
 
@@ -28,21 +28,21 @@ public class Main {
 			}
 			int numberOfNodes = Integer.parseInt(sc.nextLine().split("-")[1]);
 			for(int i = 0 ; i < numberOfNodes ; i ++) {
-				Node node = new Node(i+1);
+				Node node = new Node(i);
 				nodes.add(node);
 			}
 			sc.nextLine();
 			for(int i = 0 ; i < numberOfNodes ; i ++) {
 				String[] nodeInfo = sc.nextLine().split("-");
 				for(int j = 0 ; j < nodeInfo.length -1 ; j ++ ) {
-					nodes.get(i+1).addServedPrefix(nodeInfo[j+1]);
+					nodes.get(i).addServedPrefix(nodeInfo[j+1]);
 				}
 			}
 			sc.nextLine();
 			for(int i = 0 ; i < numberOfNodes ; i ++) {
 				String[] nodeInfo = sc.nextLine().split("-");
 				for(int j = 0 ; j < nodeInfo.length -1 ; j ++ ) {
-					nodes.get(i+1).addDemandedPrefix(nodeInfo[j+1]);
+					nodes.get(i).addDemandedPrefix(nodeInfo[j+1]);
 				}
 			}
 
@@ -53,8 +53,8 @@ public class Main {
 				Edge edge2 = new Edge (Integer.parseInt(edgeInfo[1]),Integer.parseInt(edgeInfo[0]),Integer.parseInt(edgeInfo[2]));
 				edges.add(edge1);
 				edges.add(edge2);
-				nodes.get(Integer.parseInt(edgeInfo[0])).addEdge(edge1);
-				nodes.get(Integer.parseInt(edgeInfo[1])).addEdge(edge2);
+				nodes.get(edge1.firstNode).addEdge(edge1);
+				nodes.get(edge2.firstNode).addEdge(edge2);
 			}
 			Simulator sim = new Simulator(prefixes,nodes,edges);
 			sim.run();

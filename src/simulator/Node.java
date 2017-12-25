@@ -13,8 +13,6 @@ public class Node implements Comparable{
 	HashMap <String, ArrayList<Integer>> routingTable; // Keeps prefixName and servedNodeID
 	HashMap <Integer, ForwardingTableRow> forwardingtable; //Keeps route information over multiple paths for each node
 	int dijDis1 = 0;
-	int dijDis2 = 0;
-	int dijDis3 = 0;
 	public Node(int nodeID){
 		this.nodeID=nodeID;
 		this.routingTable=new HashMap <String,ArrayList<Integer>>();
@@ -53,19 +51,7 @@ public class Node implements Comparable{
 	@Override
 	public int compareTo(Object anotherNode) {
 		if(this.dijDis1 == ((Node)anotherNode).dijDis1) {
-			if(this.dijDis2 ==((Node)anotherNode).dijDis2 ) {
-				if(this.dijDis3 ==((Node)anotherNode).dijDis3 ) {
-					return 0;
-				} else if(this.dijDis3 > ((Node)anotherNode).dijDis3 ) {
-					return 1;
-				} else {
-					return -1;
-				}
-			} else if (this.dijDis2 >((Node)anotherNode).dijDis2 ){
-				return 1;
-			} else {
-				return -1;
-			}
+			return 0;
 		} else if(this.dijDis1 > ((Node)anotherNode).dijDis1) {
 			return 1;
 		} else {

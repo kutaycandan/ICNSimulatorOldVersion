@@ -16,7 +16,7 @@ public class Simulator {
 
 	}
 	public void run() {
-
+		run3DegDijsktra(0);
 	}
 
 	public void run3DegDijsktra(int nodeID) {
@@ -80,18 +80,18 @@ public class Simulator {
 							path2Distance[e.secondNode] = dist;
 							path2Previous[e.secondNode] = e.firstNode;
 						}
-						nodes.get(e.secondNode).dijDis2 = dist;
+						nodes.get(e.secondNode).dijDis1 = dist;
 					} else if(dist < path3Distance[e.secondNode]) {
 						path3Distance[e.secondNode] = dist;
 						path3Previous[e.secondNode] = e.firstNode;
-						nodes.get(e.secondNode).dijDis3 = dist;
+						nodes.get(e.secondNode).dijDis1 = dist;
 					}
 					heap.add(nodes.get(e.secondNode));
 				}
 				visitedNodes[currentNode.nodeID] = 1;
 			}
 		}
-
+		System.out.println(path1Distance.toString());
 	}
 
 
