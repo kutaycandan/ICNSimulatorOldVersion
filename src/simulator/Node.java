@@ -12,7 +12,7 @@ public class Node implements Comparable{
 	ArrayList <String> servedPrefixes; // Keeps served Prefix
 	HashMap <String, ArrayList<Integer>> routingTable; // Keeps prefixName and servedNodeID
 	HashMap <Integer, ForwardingTableRow> forwardingtable; //Keeps route information over multiple paths for each node
-	int dijDis1 = 0;
+	int dijDist = 0;
 	public Node(int nodeID){
 		this.nodeID=nodeID;
 		this.routingTable=new HashMap <String,ArrayList<Integer>>();
@@ -23,6 +23,17 @@ public class Node implements Comparable{
 		this.servedPrefixes = new ArrayList<String>();
 		
 		
+	}
+	//copy constructor
+	public Node(Node n, int newDijDist) {
+		Node copyNode = new Node(n.nodeID);
+		copyNode.type = n.type;
+		copyNode.dijDist =  newDijDist;
+		copyNode.edgeList = n.getEdgeList();
+	}
+	
+	public ArrayList<Edge> getEdgeList () {
+		return this.edgeList;
 	}
 	public void addServedPrefix(String prefixName) {
 		servedPrefixes.add(prefixName);
@@ -50,9 +61,9 @@ public class Node implements Comparable{
 	}
 	@Override
 	public int compareTo(Object anotherNode) {
-		if(this.dijDis1 == ((Node)anotherNode).dijDis1) {
+		if(this.dijDist == ((Node)anotherNode).dijDist) {
 			return 0;
-		} else if(this.dijDis1 > ((Node)anotherNode).dijDis1) {
+		} else if(this.dijDist > ((Node)anotherNode).dijDist) {
 			return 1;
 		} else {
 			return -1;

@@ -12,7 +12,8 @@ public class Main {
 	static ArrayList <Prefix> prefixes = new ArrayList<Prefix>();
 	public static void main(String[] args) {
 		initialize();
-		
+		Simulator sim = new Simulator(prefixes,nodes,edges);
+		sim.run();
 	}
 
 	public static void initialize() {
@@ -56,8 +57,6 @@ public class Main {
 				nodes.get(edge1.firstNode).addEdge(edge1);
 				nodes.get(edge2.firstNode).addEdge(edge2);
 			}
-			Simulator sim = new Simulator(prefixes,nodes,edges);
-			sim.run();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

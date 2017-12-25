@@ -16,7 +16,7 @@ public class Simulator {
 
 	}
 	public void run() {
-		run3DegDijsktra(0);
+		run3DegDijsktra(1);
 	}
 
 	public void run3DegDijsktra(int nodeID) {
@@ -69,7 +69,7 @@ public class Simulator {
 							path1Distance[e.secondNode] = dist;
 							path1Previous[e.secondNode] = e.firstNode;
 						}
-						nodes.get(e.secondNode).dijDis1 = dist;
+						heap.add(nodes.get(e.secondNode));
 					} else if(dist < path2Distance[e.secondNode]) {
 						if(path2Previous[e.secondNode] == -1) {
 							path2Distance[e.secondNode] = dist;
@@ -80,18 +80,31 @@ public class Simulator {
 							path2Distance[e.secondNode] = dist;
 							path2Previous[e.secondNode] = e.firstNode;
 						}
-						nodes.get(e.secondNode).dijDis1 = dist;
+						heap.add(new Node(nodes.get(e.secondNode), dist));
 					} else if(dist < path3Distance[e.secondNode]) {
 						path3Distance[e.secondNode] = dist;
 						path3Previous[e.secondNode] = e.firstNode;
-						nodes.get(e.secondNode).dijDis1 = dist;
 					}
-					heap.add(nodes.get(e.secondNode));
+					heap.add(new Node(nodes.get(e.secondNode), dist));
 				}
 				visitedNodes[currentNode.nodeID] = 1;
 			}
 		}
-		System.out.println(path1Distance.toString());
+		
+		
+		
+		
+		for (int w = 0; w<nodes.size(); w++ ) {
+			System.out.print(path1Distance[w] + "-");
+		}
+		System.out.println();
+		for (int w = 0; w<nodes.size(); w++ ) {
+			System.out.print(path2Distance[w] + "-");
+		}
+		System.out.println();
+		for (int w = 0; w<nodes.size(); w++ ) {
+			System.out.print(path3Distance[w] + "-");
+		}
 	}
 
 
