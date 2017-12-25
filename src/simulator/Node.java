@@ -13,6 +13,7 @@ public class Node implements Comparable{
 	HashMap <String, ArrayList<Integer>> routingTable; // Keeps prefixName and servedNodeID
 	HashMap <Integer, ForwardingTableRow> forwardingtable; //Keeps route information over multiple paths for each node
 	int dijDist = 0;
+	int dijPrev = 0;
 	public Node(int nodeID){
 		this.nodeID=nodeID;
 		this.routingTable=new HashMap <String,ArrayList<Integer>>();
@@ -22,16 +23,15 @@ public class Node implements Comparable{
 		this.demandedPrefixes = new ArrayList<String>();
 		this.servedPrefixes = new ArrayList<String>();
 		
-		
 	}
-	//copy constructor
-	public Node(Node n, int newDijDist) {
-		Node copyNode = new Node(n.nodeID);
-		copyNode.type = n.type;
-		copyNode.dijDist =  newDijDist;
-		copyNode.edgeList = n.getEdgeList();
+	//copy constructor to be used in 3th degree dijsktra algorithm
+	public Node(Node n, int newDijDist, int newDijPrev) {
+		this.nodeID = n.nodeID;
+		this.type = n.type;
+		this.dijDist =  newDijDist;
+		this.dijPrev = newDijPrev;
+		this.edgeList = n.getEdgeList();
 	}
-	
 	public ArrayList<Edge> getEdgeList () {
 		return this.edgeList;
 	}

@@ -8,7 +8,7 @@ public class Simulator {
 	ArrayList <Node> nodes = new ArrayList<Node>();
 	ArrayList <Edge> edges = new ArrayList<Edge>();
 	ArrayList <Prefix> prefixes = new ArrayList<Prefix>();
-	final int infinity = (int) Math.pow(2, 31);
+	final int infinity = 2000000000;
 	public Simulator(ArrayList <Prefix> prefixes, ArrayList <Node> nodes,ArrayList <Edge> edges) {
 		this.prefixes=prefixes;
 		this.nodes=nodes;
@@ -16,14 +16,13 @@ public class Simulator {
 
 	}
 	public void run() {
-		run3DegDijsktra(1);
+		run3DegDijsktra(0);
 	}
 
 	public void run3DegDijsktra(int nodeID) {
 		PriorityQueue <Node>heap = new PriorityQueue<Node>(); 
 		Node initialNode;
 		Node currentNode;
-		//Node targetNode; 
 		Edge e;
 		initialNode = nodes.get(nodeID);
 		heap.add(initialNode);
@@ -44,7 +43,7 @@ public class Simulator {
 			path1Previous[k]= -1;
 			path2Previous[k]= -1;
 			path3Previous[k]= -1;
-			visitedNodes[k] = -1;
+			visitedNodes[k] = 0;
 		}
 		path1Distance[initialNode.nodeID]= 0;
 		path2Distance[initialNode.nodeID]= 0;
@@ -53,60 +52,39 @@ public class Simulator {
 
 		while(!heap.isEmpty()) {
 			currentNode = heap.poll();
-			if(visitedNodes[currentNode.nodeID] !=1) {
+			if(visitedNodes[currentNode.nodeID] < 3) {
 				for (int i =0; i< currentNode.edgeList.size(); i++) {
 					e = currentNode.edgeList.get(i);
-					int dist = path1Distance[currentNode.nodeID] + e.cost;
-					if(dist < path1Distance[e.secondNode]) {
-						if(path1Previous[e.secondNode] == -1) {
-							path1Distance[e.secondNode] = dist;
-							path1Previous[e.secondNode] = e.firstNode;
-						}  else {
-							path3Distance[e.secondNode] = path2Distance[e.secondNode];
-							path3Previous[e.secondNode] = path2Previous[e.secondNode];
-							path2Distance[e.secondNode] = path1Distance[e.secondNode];
-							path2Previous[e.secondNode] = path1Previous[e.secondNode];
-							path1Distance[e.secondNode] = dist;
-							path1Previous[e.secondNode] = e.firstNode;
+					int dist = currentNode.dijDist + e.cost;
+					if(currentNode.dijPrev != e.secondNode) {
+						if(dist < path1Distance[e.secondNode]) {
+							if(path1Previous[e.secondNode]!=-1) {
+								path3Distance[e.secondNode]= path2Distance[e.secondNode];
+								path3Previous[e.secondNode]= path2Previous[e.secondNode];
+								path2Distance[e.secondNode]= path1Distance[e.secondNode];
+								path2Previous[e.secondNode]= path1Previous[e.secondNode];
+							}
+							path1Distance[e.secondNode]= dist;
+							path1Previous[e.secondNode]=e.firstNode;
+							heap.add(new Node(nodes.get(e.secondNode),dist,e.firstNode));
+						} else if(dist < path2Distance[e.secondNode]) {
+							if(path2Previous[e.secondNode]!=-1) {
+								path3Distance[e.secondNode]= path2Distance[e.secondNode];
+								path3Previous[e.secondNode]= path2Previous[e.secondNode];
+							}
+							path2Distance[e.secondNode]= dist;
+							path2Previous[e.secondNode]=e.firstNode;
+							heap.add(new Node(nodes.get(e.secondNode),dist,e.firstNode));
+						} else if (dist < path3Distance[e.secondNode]) {
+							path3Distance[e.secondNode]= dist;
+							path3Previous[e.secondNode]=e.firstNode;
+							heap.add(new Node(nodes.get(e.secondNode),dist,e.firstNode));
 						}
-						heap.add(nodes.get(e.secondNode));
-					} else if(dist < path2Distance[e.secondNode]) {
-						if(path2Previous[e.secondNode] == -1) {
-							path2Distance[e.secondNode] = dist;
-							path2Previous[e.secondNode] = e.firstNode;
-						}  else {
-							path3Distance[e.secondNode] = path2Distance[e.secondNode];
-							path3Previous[e.secondNode] = path2Previous[e.secondNode];
-							path2Distance[e.secondNode] = dist;
-							path2Previous[e.secondNode] = e.firstNode;
-						}
-						heap.add(new Node(nodes.get(e.secondNode), dist));
-					} else if(dist < path3Distance[e.secondNode]) {
-						path3Distance[e.secondNode] = dist;
-						path3Previous[e.secondNode] = e.firstNode;
 					}
-					heap.add(new Node(nodes.get(e.secondNode), dist));
 				}
-				visitedNodes[currentNode.nodeID] = 1;
 			}
+			visitedNodes[currentNode.nodeID]+=1;
 		}
 		
-		
-		
-		
-		for (int w = 0; w<nodes.size(); w++ ) {
-			System.out.print(path1Distance[w] + "-");
-		}
-		System.out.println();
-		for (int w = 0; w<nodes.size(); w++ ) {
-			System.out.print(path2Distance[w] + "-");
-		}
-		System.out.println();
-		for (int w = 0; w<nodes.size(); w++ ) {
-			System.out.print(path3Distance[w] + "-");
-		}
 	}
-
-
-
 }
