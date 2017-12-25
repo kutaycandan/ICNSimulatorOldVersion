@@ -6,12 +6,16 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
-
+	// TODO Auto-generated method stub
+	static ArrayList <Node> nodes = new ArrayList<Node>();
+	static ArrayList <Edge> edges = new ArrayList<Edge>();
+	static ArrayList <Prefix> prefixes = new ArrayList<Prefix>();
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		ArrayList <Node> nodes = new ArrayList<Node>();
-		ArrayList <Edge> edges = new ArrayList<Edge>();
-		ArrayList <Prefix> prefixes = new ArrayList<Prefix>();
+		//initialize();
+		
+	}
+
+	public static void initialize() {
 		File file = new File("input.txt");
 		Scanner sc;
 		try {
@@ -41,12 +45,16 @@ public class Main {
 					nodes.get(i+1).addDemandedPrefix(nodeInfo[j+1]);
 				}
 			}
-			
+
 			int numberOfEdges = Integer.parseInt(sc.nextLine().split("-")[1]);
 			for(int i = 0 ; i < numberOfEdges ; i ++) {
 				String[] edgeInfo = sc.nextLine().split("-");
-				Edge edge = new Edge (Integer.parseInt(edgeInfo[0]),Integer.parseInt(edgeInfo[1]),Integer.parseInt(edgeInfo[2]));
-				edges.add(edge);
+				Edge edge1 = new Edge (Integer.parseInt(edgeInfo[0]),Integer.parseInt(edgeInfo[1]),Integer.parseInt(edgeInfo[2]));
+				Edge edge2 = new Edge (Integer.parseInt(edgeInfo[1]),Integer.parseInt(edgeInfo[0]),Integer.parseInt(edgeInfo[2]));
+				edges.add(edge1);
+				edges.add(edge2);
+				nodes.get(Integer.parseInt(edgeInfo[0])).addEdge(edge1);
+				nodes.get(Integer.parseInt(edgeInfo[1])).addEdge(edge2);
 			}
 			Simulator sim = new Simulator(prefixes,nodes,edges);
 			sim.run();

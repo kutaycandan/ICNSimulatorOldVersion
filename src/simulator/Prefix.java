@@ -10,7 +10,6 @@ public class Prefix {
 		this.prefixName = prefixName;
 		this.dataSize = dataSize;
 		this.servingNode = new ArrayList<Integer>();
-		
 	}
 	//Şu anda kullanılmıyor istersek diye ekledim
 	public void addServingNode(int nodeID) {

@@ -14,15 +14,15 @@ public class ForwardingTableRow {
 		this.q3 = new LinkedList <Integer>();
 		this.degree = 0;
 	}
-	public void addFirstQueue(int nodeID) {
+	public void addFirstPath(int nodeID) {
 		q1.add(nodeID);
 	}
 	
-	public void addSecondQueue(int nodeID) {
+	public void addSecondPath(int nodeID) {
 		q2.add(nodeID);
 	}
 	
-	public void addThirdQueue(int nodeID) {
+	public void addThirdPath(int nodeID) {
 		q3.add(nodeID);
 	}
 	public void calculateDegree() {
