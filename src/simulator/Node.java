@@ -14,6 +14,7 @@ public class Node implements Comparable{
 	HashMap <Integer, ForwardingTableRow> forwardingtable; //Keeps route information over multiple paths for each node
 	int dijDist = 0;
 	int dijPrev = 0;
+	int time;
 	public Node(int nodeID){
 		this.nodeID=nodeID;
 		this.routingTable=new HashMap <String,ArrayList<Integer>>();
@@ -22,6 +23,7 @@ public class Node implements Comparable{
 		this.edgeList = new ArrayList<Edge>();
 		this.demandedPrefixes = new ArrayList<String>();
 		this.servedPrefixes = new ArrayList<String>();
+		this.time = 0;
 	}
 	//copy constructor to be used in 3th degree dijsktra algorithm
 	public Node(Node n, int newDijDist, int newDijPrev) {
@@ -40,8 +42,8 @@ public class Node implements Comparable{
 	public void addDemandedPrefix(String prefixName) {
 		demandedPrefixes.add(prefixName);
 	}
-	public void addForwardingTableRow(int nodeID,ForwardingTableRow row) {
-		
+	public void addRoutingTable(String prefixName,ArrayList<Integer> nodes) {
+		this.routingTable.put(prefixName, nodes);
 	}
 	public void calculateType() {
 		this.type = 0;
@@ -66,6 +68,15 @@ public class Node implements Comparable{
 			return 1;
 		} else {
 			return -1;
+		}
+	}
+	public void hasEvent(int time) {
+		//Bu alan doldurulacak
+		if(time==0) {
+			//Send interest
+		}
+		else {
+			//Check events
 		}
 	}
 }

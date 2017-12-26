@@ -20,18 +20,38 @@ public class Simulator {
 	int [] path2Previous; 
 	int [] path3Previous; 
 	int [] visitedNodes; 
-
+	int time;
 
 	final int infinity = 2000000000;
-	public Simulator(ArrayList <Prefix> prefixes, ArrayList <Node> nodes,ArrayList <Edge> edges) {
+	public Simulator(ArrayList <Prefix> prefixes, ArrayList <Node> nodes,ArrayList <Edge> edges,int time) {
 		this.prefixes=prefixes;
 		this.nodes=nodes;
 		this.edges=edges;
+		this.time = time;
 	}
 	public void run() {
-		run3DegDijsktra(0);
+		for(int i = 0 ; i < nodes.size() ; i++ ) {
+			run3DegDijsktra(i);
+			fillRoutingTable(i);
+		}
+		//Eventlerin başlangıcı
+		for(int i =0;i<time;i++) {
+			for(int j=0;j<nodes.size();j++) {
+				//Bu alan doldurulacak
+				//Burda bir mesaj iletilebilir has event metodu var onu doldurmak lazım eventi sen yapıcam dedin ellemedim
+				nodes.get(i).hasEvent(i);
+			}
+		}
+		
 	}
 
+	public void fillRoutingTable(int nodeID) {
+		Node node = nodes.get(nodeID);
+		for(int i = 0 ; i<prefixes.size();i++) {
+			node.addRoutingTable(prefixes.get(i).getName(), prefixes.get(i).getServingNode());
+		}
+		
+	}
 	public void run3DegDijsktra(int nodeID) {
 		PriorityQueue <Node>heap = new PriorityQueue<Node>(); //Holds next node which has the minimum distance
 		Node initialNode; //The node that Dijsktra start running

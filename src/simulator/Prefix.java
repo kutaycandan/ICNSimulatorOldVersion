@@ -11,8 +11,15 @@ public class Prefix {
 		this.dataSize = dataSize;
 		this.servingNode = new ArrayList<Integer>();
 	}
-	//Şu anda kullanılmıyor istersek diye ekledim
+	
+	
 	public void addServingNode(int nodeID) {
 		this.servingNode.add(nodeID);
+	}
+	public String getName() {
+		return this.prefixName;
+	}
+	public ArrayList<Integer> getServingNode(){
+		return this.servingNode;
 	}
 }

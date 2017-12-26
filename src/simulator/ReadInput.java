@@ -34,6 +34,7 @@ public class ReadInput {
 			for(int i = 0 ; i < numberOfNodes ; i ++) {
 				String[] nodeInfo = sc.nextLine().split("-");
 				for(int j = 0 ; j < nodeInfo.length -1 ; j ++ ) {
+					prefixes.get(getPrefixID(nodeInfo[j+1])).addServingNode(i);
 					nodes.get(i).addServedPrefix(nodeInfo[j+1]);
 				}
 			}
@@ -69,5 +70,14 @@ public class ReadInput {
 	}
 	public  ArrayList <Prefix> getPrefixList(){
 		return prefixes;
+	}
+	public int getPrefixID(String prefixName) {
+		int id=-1;
+		for(int i = 0 ; i < prefixes.size();i++) {
+			if(prefixes.get(i).getName().equalsIgnoreCase(prefixName)) {
+				return i;
+			}
+		}
+		return id;
 	}
 }
