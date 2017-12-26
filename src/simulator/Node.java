@@ -74,10 +74,24 @@ public class Node implements Comparable{
 		//Bu alan doldurulacak
 		if(time==0) {
 			//Send interest
+			//send(time)
 		}
 		else {
 			//Check events
+			//heapten çekip timeları eşit mi diye bakacaksın receive varsa ve 
+			//send olması gerekiyorsa packetten poplayıp idsini yazıcaksın
 		}
+	}
+	public void send(int time,Packet packet,int nodeID) {
+		int tmptime = time +1;
+		//packet yapısını tam bilmiyorum değiştireceksen burada pop falan yapman gerekecek
+		//nodes.get(nodeID).receive(packet,tmptime) tadında olacak ama kafam yine basmadı :D
+		System.out.println("Packet: "+packet.ID +" sent by Node: "+this.nodeID+" to Node: "+nodeID+" at time: "+ time);
+	}
+	public void receive(int time,Packet packet) {
+		//Heapi oluşturduktan sonra bakacaksın
+		System.out.println("Packet: "+packet.ID +" received by Node: "+this.nodeID+" at time: "+ time);
+
 	}
 }
 
