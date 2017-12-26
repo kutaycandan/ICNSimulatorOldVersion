@@ -1,10 +1,12 @@
 package simulator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 public class Simulator {
 	ArrayList <Node> nodes = new ArrayList<Node>();
@@ -18,8 +20,8 @@ public class Simulator {
 	int [] path2Previous; 
 	int [] path3Previous; 
 	int [] visitedNodes; 
-	
-	
+
+
 	final int infinity = 2000000000;
 	public Simulator(ArrayList <Prefix> prefixes, ArrayList <Node> nodes,ArrayList <Edge> edges) {
 		this.prefixes=prefixes;
@@ -116,77 +118,107 @@ public class Simulator {
 			visitedNodes[currentNode.nodeID]+=1;
 		}
 		
-		System.out.println(levelOnePathBuilding(1, 0));
+		for(int i =0; i < nodes.size(); i++) {
+			buildForwardingTable(1, nodeID, i, levelOnePathBuilding(i,nodeID));
+			buildForwardingTable(2, nodeID, i, levelTwoPathBuilding(i,nodeID));
+			buildForwardingTable(3, nodeID, i, levelThreePathBuilding(i,nodeID));
+		}
+		//System.out.println(nodes.get(0).forwardingtable.get(5).q1.toString());
+		//System.out.println(nodes.get(0).forwardingtable.get(5).q2.toString());
+		//System.out.println(nodes.get(0).forwardingtable.get(5).q3.toString());
 	}
-	
+
 	public String levelOnePathBuilding(int init, int nodeID) {
-		String path;
+		String path = "";
 		int prev;
 		//////////////////Path1///////////////////
-			path=""+init+"-";
-			prev = path1Previous[init];
-			while(prev!=nodeID) {
-				path += prev+"-";
-				prev = path1Previous[prev];
-			}
-			path +=""+nodeID;	
+		prev = path1Previous[init];
+		while(prev!=nodeID) {
+			path += prev+"-";
+			prev = path1Previous[prev];
+		}
+		path +=""+nodeID;	
 		return path;
 	}
-	
+
 	public String levelTwoPathBuilding(int init, int nodeID) {
-		String path;
+		String path = "";
 		int prev;
 		int dist = 0;
-		//////////////////Path2///////////////////
-			path=""+init+"-";
-			prev = path1Previous[init];
-			while(prev!=nodeID) {
+		//////////////////////Path2//////////////////////////
+		prev = path2Previous[init];
+		while(prev!=nodeID) {
+			dist = path2Distance[init]-edgePair.get(""+init+"-"+prev);
+			if( dist < path2Distance[prev]){
 				path += prev+"-";
-				dist = path2Distance[init]-edgePair.get(""+init+"-"+prev);
-				if(dist<path2Distance[prev]) { //go and check one level up
-					return path + levelOnePathBuilding(path1Previous[prev], nodeID);
-				} else {
-					if(path2Previous[prev]!=init) {
-						init = prev;
-						prev = path2Previous[prev];
-					} else { //go and check one level up
-						return path + levelOnePathBuilding(path1Previous[prev], nodeID);
-					}
-				}
+				return path + levelOnePathBuilding(prev, nodeID);
+			} else if(dist == path2Distance[prev] && path2Previous[prev] !=init) {
+				path += prev+"-";
+				init = prev;
+				prev = path2Previous[prev];
 			}
-			path +=""+nodeID;	
+		}
+		path +=""+nodeID;	
 		return path;
 	}
-	
+
 	public String levelThreePathBuilding(int init, int nodeID) {
-		String path;
+		String path="";
 		int prev;
 		int dist = 0;
-		//////////////////Path2///////////////////
-			path=""+init+"-";
-			prev = path1Previous[init];
-			while(prev!=nodeID) {
-				path += prev+"-";
-				dist = path3Distance[init]-edgePair.get(""+init+"-"+prev);
-				if(dist<path3Distance[prev]) { //go and check one level up
-					return path + levelTwoPathBuilding(path2Previous[prev], nodeID);
-				} else {
-					if(path3Previous[prev]!=init) {
-						init = prev;
-						prev = path3Previous[prev];
-					} else { //go and check one level up
-						return path + levelTwoPathBuilding(path2Previous[prev], nodeID);
-					}
+		//////////////////Path3///////////////////
+		prev = path3Previous[init];
+		while(prev!=nodeID) {
+			dist = path3Distance[init]-edgePair.get(""+init+"-"+prev);
+			if( dist < path3Distance[prev]){ //can go up only one level or two levels
+				int dist2 = path2Distance[prev];  //distance if it came from level 2
+				int dist1 = path1Distance[prev];  //distance if it came from level 1
+				if(dist2 == dist) { //it goes level 2
+					path += prev+"-";
+					return path + levelTwoPathBuilding(prev, nodeID);
+				} else if(dist1 == dist) { //it goes level 1
+					path += prev+"-";
+					return path + levelOnePathBuilding(prev, nodeID);
 				}
+			} else if(dist == path3Distance[prev] && path3Previous[prev] !=init) {
+				path += prev+"-";
+				init = prev;
+				prev = path3Previous[prev];
 			}
-			path +=""+nodeID;	
+		}
+		path +=""+nodeID;	
 		return path;
 	}
-	
-	
 
 	public void buildForwardingTable(int pathId, int initialNode, int targetNode, String path) {
+		String[] pathInfo = path.split("-");
+		HashMap <Integer, ForwardingTableRow> fwTable = nodes.get(initialNode).forwardingtable;
+		//Check if a row is previously added
+		ForwardingTableRow row; 
+		if(!fwTable.isEmpty()) {
+			if(fwTable.containsKey(targetNode)) {
+				row = fwTable.get(targetNode);
+			} else {
+				row = new ForwardingTableRow();
+			}
+		} else {
+			row = new ForwardingTableRow();
+		}
+		Queue<Integer> list = new LinkedList <Integer>();
+		//construct the path
+		for(int i = pathInfo.length-1-1 ; i>=0; i--) {
+			list.add(Integer.parseInt(pathInfo[i]));
+		}
+		//choose which row
+		if(pathId == 1) {
+			row.q1 = list;
+		} else if(pathId ==2) {
+			row.q2 = list;
+		} else {
+			row.q3 = list;
+		}
 
+		fwTable.put(targetNode, row);
 	}
 
 
