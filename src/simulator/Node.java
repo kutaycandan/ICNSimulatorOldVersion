@@ -22,7 +22,6 @@ public class Node implements Comparable{
 		this.edgeList = new ArrayList<Edge>();
 		this.demandedPrefixes = new ArrayList<String>();
 		this.servedPrefixes = new ArrayList<String>();
-		
 	}
 	//copy constructor to be used in 3th degree dijsktra algorithm
 	public Node(Node n, int newDijDist, int newDijPrev) {
