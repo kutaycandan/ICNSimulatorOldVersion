@@ -2,6 +2,9 @@ package simulator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Random;
 
 
 public class Node implements Comparable{
@@ -15,10 +18,12 @@ public class Node implements Comparable{
 	int dijDist = 0;
 	int dijPrev = 0;
 	int time;
+	PriorityQueue<Event> eventQueue;
 	public Node(int nodeID){
 		this.nodeID=nodeID;
 		this.routingTable=new HashMap <String,ArrayList<Integer>>();
 		this.forwardingtable= new HashMap<Integer,ForwardingTableRow>();
+		this.eventQueue = new PriorityQueue<Event>();
 		this.type=0;
 		this.edgeList = new ArrayList<Edge>();
 		this.demandedPrefixes = new ArrayList<String>();
@@ -73,8 +78,7 @@ public class Node implements Comparable{
 	public void hasEvent(int time) {
 		//Bu alan doldurulacak
 		if(time==0) {
-			//Send interest
-			//send(time)
+			initializeEvents();
 		}
 		else {
 			//Check events
@@ -92,6 +96,46 @@ public class Node implements Comparable{
 		//Heapi oluşturduktan sonra bakacaksın
 		System.out.println("Packet: "+packet.ID +" received by Node: "+this.nodeID+" at time: "+ time);
 
+	}
+	
+	public void initializeEvents() {
+		
+		Random rand = new Random(2000);
+		int event_time = rand.nextInt();
+		int event_type = 0; //initial ones should be a send event
+		
+		String prefixName;
+		int prefDataSize = 1000;
+		Prefix pref;
+		
+		int packetSourceID = nodeID;
+		int packetDestID;
+		int packetType =0; //initial ones should be a interest packet
+		Queue<Integer> pathInfo;
+		Packet p;
+		
+		Event e; 
+		
+		for (int i =0; i< demandedPrefixes.size(); i++) {
+			prefixName = demandedPrefixes.get(i);
+			pref = new Prefix(prefixName, prefDataSize);
+					
+			packetDestID = routingTable.get(prefixName).get(0);  //ilk producer kimse ona yolla şimdilik
+			pathInfo = forwardingtable.get(packetDestID).q1;	//sonra random alınabilir1
+			p = new Packet(this.nodeID, packetDestID,packetType, pref, pathInfo);
+			
+			e = new Event(event_type, event_time);
+			e.addPacket(p);
+			
+			eventQueue.add(e);
+			event_time = rand.nextInt();	
+		}
+		
+			
+			
+			
+			
+		
 	}
 }
 

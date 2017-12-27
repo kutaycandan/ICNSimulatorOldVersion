@@ -1,0 +1,27 @@
+package simulator;
+import simulator_interfaces.*;
+
+public class Event implements Comparable{
+	int event_type;   //0 for send 1 for receive
+	int event_time;
+	Packet event_packet;
+	public Event (int e_type, int e_time) {
+		this.event_type = e_type;  
+		this.event_time = e_time; 
+	}
+	
+	@Override
+	public int compareTo(Object evt) {
+		if(this.event_time == ((Event)evt).event_time) {
+			return 0;
+		} else if ( this.event_time > ((Event)evt).event_time) {
+			return 1;
+		} else {
+			return -1;
+		}
+	}
+	public void addPacket(Packet p) {
+		this.event_packet = p;
+	}
+
+}

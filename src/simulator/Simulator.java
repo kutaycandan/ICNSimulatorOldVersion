@@ -12,7 +12,7 @@ public class Simulator {
 	ArrayList <Node> nodes = new ArrayList<Node>();
 	ArrayList <Edge> edges = new ArrayList<Edge>();
 	ArrayList <Prefix> prefixes = new ArrayList<Prefix>();
-	HashMap <String,Integer> edgePair = new HashMap<String,Integer>();
+	HashMap <String,Integer> edgePair= new HashMap<String,Integer>();
 	int [] path1Distance;
 	int [] path2Distance;
 	int [] path3Distance; 

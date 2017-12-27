@@ -1,5 +1,5 @@
 package simulator;
-import java.util.ArrayList;
+import java.util.Queue;
 
 public class Packet {
 	static int ID = 1000;
@@ -8,14 +8,19 @@ public class Packet {
 	int sequenceNumber;
 	int destinatonID;
 	int hopNumber;
-	ArrayList<Integer> path;
-	public Packet(int sourceID , int destinationID) {
+	int type;
+	Prefix prefix;
+	Queue<Integer> path;
+	public Packet(int sourceID , int destinationID, int type, Prefix pref, Queue<Integer> pathInfo) {
 		ID++;
 		size =1024;
 		hopNumber = 0;
 		sequenceNumber = 1;
 		this.sourceID = sourceID;
 		this.destinatonID = destinationID;
+		this.type = type;   //0 interest 1 data 
+		this.prefix= pref; 
+		this.path = pathInfo;
 	}
 	public int getSourceID() {
 		return this.sourceID;
