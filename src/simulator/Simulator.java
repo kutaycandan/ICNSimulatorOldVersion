@@ -9,6 +9,10 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class Simulator {
+	static PriorityQueue<Event> eventQueue;
+	static int MaxSimulationStep = 10;
+	final int infinity = 2000000000;
+	
 	ArrayList <Node> nodes = new ArrayList<Node>();
 	ArrayList <Edge> edges = new ArrayList<Edge>();
 	ArrayList <Prefix> prefixes = new ArrayList<Prefix>();
@@ -22,29 +26,61 @@ public class Simulator {
 	int [] visitedNodes; 
 	int time;
 
-	final int infinity = 2000000000;
 	public Simulator(ArrayList <Prefix> prefixes, ArrayList <Node> nodes,ArrayList <Edge> edges,int time) {
 		this.prefixes=prefixes;
 		this.nodes=nodes;
 		this.edges=edges;
 		this.time = time;
+		eventQueue = new PriorityQueue<Event>();
 	}
 	public void run() {
+		//initialize all routes and paths
+		//initialize events
+		//we do not change link costs right now but can change it easily
 		for(int i = 0 ; i < nodes.size() ; i++ ) {
 			run3DegDijsktra(i);
 			fillRoutingTable(i);
-		}
-		//Eventlerin başlangıcı
-		for(int i =0;i<time;i++) {
-			for(int j=0;j<nodes.size();j++) {
-				//Bu alan doldurulacak
-				//Burda bir mesaj iletilebilir has event metodu var onu doldurmak lazım eventi sen yapıcam dedin ellemedim
-				nodes.get(i).hasEvent(i);
-			}
+			nodes.get(i).initializeEvents(10);
 		}
 		
+		Event evt;
+		for(int i =0; i<=MaxSimulationStep; i++) {
+				evt = eventQueue.poll();	
+			//System.out.println(evt.event_time);
+			if(evt.event_time == i) { //it is time to do this event
+				while(evt.event_time == i) {
+					if(evt.event_type == 0) {//it is a send event
+						if(evt.event_packet.path.isEmpty()) {
+							nodes.get(evt.event_packet.destinatonID).sendPacket(evt);
+						} else {
+							nodes.get(evt.event_packet.path.peek()).sendPacket(evt);
+						}
+					} else if(evt.event_type == 1){ //it is a receive event
+						if(evt.event_packet.path.isEmpty()) {
+							nodes.get(evt.event_packet.destinatonID).receivePacket(evt);
+						} else {
+							nodes.get(evt.event_packet.path.peek()).receivePacket(evt);	
+						}
+					}
+					evt = eventQueue.poll();
+				}
+				eventQueue.add(evt);
+			} else {
+				eventQueue.add(evt);
+			}
+		} 
+		//System.out.println("Surprise mother fucker");
 	}
-
+	
+	public void setSimulationStep (int simStep) {
+		MaxSimulationStep = simStep;
+	}
+	public static void addEventQueue(Event e) {
+		eventQueue.add(e);
+	}
+	public static Event firstEventFromQueue() {
+		return eventQueue.poll();
+	}
 	public void fillRoutingTable(int nodeID) {
 		Node node = nodes.get(nodeID);
 		for(int i = 0 ; i<prefixes.size();i++) {
@@ -52,11 +88,12 @@ public class Simulator {
 		}
 		
 	}
+	
 	public void run3DegDijsktra(int nodeID) {
 		PriorityQueue <Node>heap = new PriorityQueue<Node>(); //Holds next node which has the minimum distance
 		Node initialNode; //The node that Dijsktra start running
 		Node currentNode; //The node that is being examined
-		Edge e; //An edge of the current node
+		//Edge e; //An edge of the current node
 		ArrayList<Integer> pathInfo;
 		initialNode = nodes.get(nodeID);
 		heap.add(initialNode);
@@ -92,8 +129,8 @@ public class Simulator {
 			//A node can be visited at most 3 times while dijsktra-3 running 
 			if(visitedNodes[currentNode.nodeID] < 3) {
 				//For each edge of current node
-				for (int i =0; i< currentNode.edgeList.size(); i++) {
-					e = currentNode.edgeList.get(i);   //first node = current node , second node = neighbor node
+				for (Edge e:(currentNode.edgeList.values()) ) {
+					//in an edge: first node = current node , second node = neighbor node
 					edgePair.put(""+e.firstNode+"-"+e.secondNode, e.cost);
 					//New distance to neighbors which is passing through the current node
 					int dist = currentNode.dijDist + e.cost;
@@ -137,15 +174,18 @@ public class Simulator {
 			}
 			visitedNodes[currentNode.nodeID]+=1;
 		}
+		//System.out.println("For node: "+nodeID + " path1= "+Arrays.toString(path1Previous));
+		//System.out.println("For node: "+nodeID + " path2= "+Arrays.toString(path2Previous));
+		//System.out.println("For node: "+nodeID + " path3= "+Arrays.toString(path3Previous));
 		
 		for(int i =0; i < nodes.size(); i++) {
 			buildForwardingTable(1, nodeID, i, levelOnePathBuilding(i,nodeID));
 			buildForwardingTable(2, nodeID, i, levelTwoPathBuilding(i,nodeID));
 			buildForwardingTable(3, nodeID, i, levelThreePathBuilding(i,nodeID));
 		}
-		//System.out.println(nodes.get(0).forwardingtable.get(5).q1.toString());
-		//System.out.println(nodes.get(0).forwardingtable.get(5).q2.toString());
-		//System.out.println(nodes.get(0).forwardingtable.get(5).q3.toString());
+		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q1.toString());
+		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q2.toString());
+		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q3.toString());
 	}
 
 	public String levelOnePathBuilding(int init, int nodeID) {
@@ -157,7 +197,7 @@ public class Simulator {
 			path += prev+"-";
 			prev = path1Previous[prev];
 		}
-		path +=""+nodeID;	
+		path +=""+nodeID;
 		return path;
 	}
 
@@ -226,7 +266,7 @@ public class Simulator {
 		}
 		Queue<Integer> list = new LinkedList <Integer>();
 		//construct the path
-		for(int i = pathInfo.length-1-1 ; i>=0; i--) {
+		for(int i = pathInfo.length-1 ; i>=0; i--) {
 			list.add(Integer.parseInt(pathInfo[i]));
 		}
 		//choose which row
@@ -240,8 +280,6 @@ public class Simulator {
 
 		fwTable.put(targetNode, row);
 	}
-
-
 
 
 }

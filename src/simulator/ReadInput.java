@@ -53,8 +53,8 @@ public class ReadInput {
 				Edge edge2 = new Edge (Integer.parseInt(edgeInfo[1]),Integer.parseInt(edgeInfo[0]),Integer.parseInt(edgeInfo[2]));
 				edges.add(edge1);
 				edges.add(edge2);
-				nodes.get(Integer.parseInt(edgeInfo[0])).addEdge(edge1);
-				nodes.get(Integer.parseInt(edgeInfo[1])).addEdge(edge2);
+				nodes.get(Integer.parseInt(edgeInfo[0])).addEdge(Integer.parseInt(edgeInfo[1]),edge1);
+				nodes.get(Integer.parseInt(edgeInfo[1])).addEdge(Integer.parseInt(edgeInfo[0]),edge2);
 			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

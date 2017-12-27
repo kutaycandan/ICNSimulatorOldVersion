@@ -10,7 +10,7 @@ import java.util.Random;
 public class Node implements Comparable{
 	int nodeID;
 	int type;
-	ArrayList <Edge> edgeList; // Keeps all incoming and outgoing channels information
+	HashMap <Integer,Edge> edgeList; // Keeps all incoming and outgoing channels information
 	ArrayList <String> demandedPrefixes; // Keeps demanded Prefix
 	ArrayList <String> servedPrefixes; // Keeps served Prefix
 	HashMap <String, ArrayList<Integer>> routingTable; // Keeps prefixName and servedNodeID
@@ -18,14 +18,12 @@ public class Node implements Comparable{
 	int dijDist = 0;
 	int dijPrev = 0;
 	int time;
-	PriorityQueue<Event> eventQueue;
 	public Node(int nodeID){
 		this.nodeID=nodeID;
 		this.routingTable=new HashMap <String,ArrayList<Integer>>();
 		this.forwardingtable= new HashMap<Integer,ForwardingTableRow>();
-		this.eventQueue = new PriorityQueue<Event>();
 		this.type=0;
-		this.edgeList = new ArrayList<Edge>();
+		this.edgeList = new HashMap<Integer,Edge>();
 		this.demandedPrefixes = new ArrayList<String>();
 		this.servedPrefixes = new ArrayList<String>();
 		this.time = 0;
@@ -38,7 +36,7 @@ public class Node implements Comparable{
 		this.dijPrev = newDijPrev;
 		this.edgeList = n.getEdgeList();
 	}
-	public ArrayList<Edge> getEdgeList () {
+	public HashMap<Integer,Edge> getEdgeList () {
 		return this.edgeList;
 	}
 	public void addServedPrefix(String prefixName) {
@@ -60,10 +58,10 @@ public class Node implements Comparable{
 		}			
 	}
 	public void updateForwardingTableRow(int nodeID,ForwardingTableRow row) {
-			forwardingtable.put(nodeID, row);
+		forwardingtable.put(nodeID, row);
 	}
-	public void addEdge(Edge e) {
-		edgeList.add(e);
+	public void addEdge(int neighbor, Edge e) {
+		edgeList.put(neighbor,e);
 	}
 	@Override
 	public int compareTo(Object anotherNode) {
@@ -75,68 +73,85 @@ public class Node implements Comparable{
 			return -1;
 		}
 	}
-	public void hasEvent(int time) {
-		//Bu alan doldurulacak
-		if(time==0) {
-			initializeEvents();
-		}
-		else {
-			//Check events
-			//heapten çekip timeları eşit mi diye bakacaksın receive varsa ve 
-			//send olması gerekiyorsa packetten poplayıp idsini yazıcaksın
-		}
-	}
-	public void send(int time,Packet packet,int nodeID) {
-		int tmptime = time +1;
-		//packet yapısını tam bilmiyorum değiştireceksen burada pop falan yapman gerekecek
-		//nodes.get(nodeID).receive(packet,tmptime) tadında olacak ama kafam yine basmadı :D
-		System.out.println("Packet: "+packet.ID +" sent by Node: "+this.nodeID+" to Node: "+nodeID+" at time: "+ time);
-	}
-	public void receive(int time,Packet packet) {
-		//Heapi oluşturduktan sonra bakacaksın
-		System.out.println("Packet: "+packet.ID +" received by Node: "+this.nodeID+" at time: "+ time);
 
-	}
-	
-	public void initializeEvents() {
-		
-		Random rand = new Random(2000);
-		int event_time = rand.nextInt();
+	public void initializeEvents(int simStep) {
+		Random rand = new Random(simStep);
+		int event_time;
 		int event_type = 0; //initial ones should be a send event
-		
+
 		String prefixName;
 		int prefDataSize = 1000;
 		Prefix pref;
 		
-		int packetSourceID = nodeID;
 		int packetDestID;
 		int packetType =0; //initial ones should be a interest packet
 		Queue<Integer> pathInfo;
 		Packet p;
-		
 		Event e; 
-		
+
 		for (int i =0; i< demandedPrefixes.size(); i++) {
 			prefixName = demandedPrefixes.get(i);
 			pref = new Prefix(prefixName, prefDataSize);
-					
-			packetDestID = routingTable.get(prefixName).get(0);  //ilk producer kimse ona yolla şimdilik
-			pathInfo = forwardingtable.get(packetDestID).q1;	//sonra random alınabilir1
-			p = new Packet(this.nodeID, packetDestID,packetType, pref, pathInfo);
-			
-			e = new Event(event_type, event_time);
-			e.addPacket(p);
-			
-			eventQueue.add(e);
-			event_time = rand.nextInt();	
+			event_time = rand.nextInt(simStep);
+			for (int numProducer = 0; numProducer < 3; numProducer++) {
+				//Send an interest to 3 producer assuming there exists 3 producer
+				//Send an interest to their best route
+				packetDestID = routingTable.get(prefixName).get(numProducer);
+				pathInfo = forwardingtable.get(packetDestID).q1;
+				p = new Packet(this.nodeID, packetDestID,packetType, pref, pathInfo);
+				for(int numPacket = 0; numPacket<10; numPacket++) {
+					e = new Event(event_type, event_time);
+					e.addPacket(p);
+					Simulator.addEventQueue(e);	
+				}
+			}
+		}
+	}
+
+	public void sendPacket(Event evt){
+		System.out.println("At node: "+ nodeID +" " + evt.toString());
+		//if path is empty them I am sending the packet to myself or 
+		if(!evt.event_packet.path.isEmpty()) {
+			//If this node is sending something which means it should be at the head of the queue in that time
+			evt.event_packet.path.remove();
 		}
 		
-			
-			
-			
-			
-		
+		if(evt.event_packet.type == 0) //if it is an interest packet, return path should be added
+			evt.event_packet.returnPath.add(nodeID);
+
+		evt.event_type = 1; //change event type to receive because
+		evt.event_time +=1;	//next time whom is at the head of the path will receive it
+		Simulator.addEventQueue(evt);
 	}
+
+	public void receivePacket(Event evt) {
+		if(evt.event_packet.destinatonID == nodeID) { //this node is the destination 
+			sendDataPacket(evt);
+		} else {
+			evt.event_type = 0;
+			sendPacket(evt);
+		}
+	}
+
+	public void sendDataPacket(Event evt) {
+		System.out.println("At node: "+ nodeID +" " + evt.toString());
+		int event_time = evt.event_time+1;
+		int event_type = 0; //initially data packets should be a send event
+		int packetDestID;
+		int packetType =1; //initial ones should be a data packet
+		Queue<Integer> returnPathInfo;
+		Packet p;
+		Event e;
+		packetDestID = evt.event_packet.sourceID;
+		returnPathInfo = evt.event_packet.returnPath;
+		p = new Packet(this.nodeID, packetDestID,packetType, returnPathInfo);
+		e = new Event(event_type, event_time);
+		e.addPacket(p);
+		Simulator.addEventQueue(e);	
+
+	}
+
+
 }
 
 

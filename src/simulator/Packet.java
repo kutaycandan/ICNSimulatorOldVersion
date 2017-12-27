@@ -1,4 +1,5 @@
 package simulator;
+import java.util.LinkedList;
 import java.util.Queue;
 
 public class Packet {
@@ -10,7 +11,9 @@ public class Packet {
 	int hopNumber;
 	int type;
 	Prefix prefix;
-	Queue<Integer> path;
+	Queue<Integer> path = new LinkedList<Integer>();
+	Queue<Integer> returnPath =new LinkedList<Integer>();
+	//InterestPacketConstructor
 	public Packet(int sourceID , int destinationID, int type, Prefix pref, Queue<Integer> pathInfo) {
 		ID++;
 		size =1024;
@@ -22,6 +25,19 @@ public class Packet {
 		this.prefix= pref; 
 		this.path = pathInfo;
 	}
+	//Data Packet Constructor
+	public Packet(int sourceID , int destinationID, int type ,Queue<Integer> returnPathInfo) {
+		ID++;
+		size =1024;
+		hopNumber = 0;
+		sequenceNumber = 1;
+		this.sourceID = sourceID;
+		this.destinatonID = destinationID;
+		this.type = type;   //0 interest 1 data  
+		this.returnPath = returnPathInfo;
+	}
+	
+	
 	public int getSourceID() {
 		return this.sourceID;
 	}
