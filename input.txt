@@ -4,16 +4,16 @@ prefix2-1024
 prefix3-1024
 Node(number of nodes)-6
 Node served prefix tuples
-0-prefix1
-1-prefix2
+0
+1-prefix2-prefix1
 2-prefix2-prefix3
 3-prefix1-prefix2-prefix3
-4-prefix2-prefix3
+4
 5-prefix1-prefix3
 Node demanded prefix tuples
 0-prefix3
 1-prefix3
-2-prefix1-prefix2
+2
 3-prefix2
 4-prefix1
 5-prefix2

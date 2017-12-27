@@ -33,16 +33,18 @@ public class ReadInput {
 			sc.nextLine();
 			for(int i = 0 ; i < numberOfNodes ; i ++) {
 				String[] nodeInfo = sc.nextLine().split("-");
+				//System.out.println(nodeInfo.length);
 				for(int j = 0 ; j < nodeInfo.length -1 ; j ++ ) {
+					//System.out.println("Node ID: "+ );
 					prefixes.get(getPrefixID(nodeInfo[j+1])).addServingNode(i);
-					nodes.get(i).addServedPrefix(nodeInfo[j+1]);
+					nodes.get(Integer.parseInt(nodeInfo[0])).addServedPrefix(nodeInfo[j+1]);
 				}
 			}
 			sc.nextLine();
 			for(int i = 0 ; i < numberOfNodes ; i ++) {
 				String[] nodeInfo = sc.nextLine().split("-");
 				for(int j = 0 ; j < nodeInfo.length -1 ; j ++ ) {
-					nodes.get(i).addDemandedPrefix(nodeInfo[j+1]);
+					nodes.get(Integer.parseInt(nodeInfo[0])).addDemandedPrefix(nodeInfo[j+1]);
 				}
 			}
 
