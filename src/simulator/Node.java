@@ -109,22 +109,29 @@ public class Node implements Comparable{
 	}
 
 	public void sendPacket(Event evt){
-		System.out.println("At node: "+ nodeID +" " + evt.toString());
+		//System.out.println("At node: "+ nodeID +" " + evt.toString());
 		//if path is empty them I am sending the packet to myself or 
 		if(!evt.event_packet.path.isEmpty()) {
 			//If this node is sending something which means it should be at the head of the queue in that time
 			evt.event_packet.path.remove();
 		}
-		
 		if(evt.event_packet.type == 0) //if it is an interest packet, return path should be added
 			evt.event_packet.returnPath.add(nodeID);
 
 		evt.event_type = 1; //change event type to receive because
 		evt.event_time +=1;	//next time whom is at the head of the path will receive it
 		Simulator.addEventQueue(evt);
+		
 	}
 
 	public void receivePacket(Event evt) {
+/////////////////
+//// KUTAY  /////
+/////////////////
+//Check this part of the code to count which edge is used
+//Head of the path is the node that packet will be sent or has just received
+//You need to check on which edge the current node and the next node is connected
+//We assumed there exist only one edge between any two nodes.
 		if(evt.event_packet.destinatonID == nodeID) { //this node is the destination 
 			sendDataPacket(evt);
 		} else {
@@ -134,7 +141,7 @@ public class Node implements Comparable{
 	}
 
 	public void sendDataPacket(Event evt) {
-		System.out.println("At node: "+ nodeID +" " + evt.toString());
+		//System.out.println("At node: "+ nodeID +" " + evt.toString());
 		int event_time = evt.event_time+1;
 		int event_type = 0; //initially data packets should be a send event
 		int packetDestID;

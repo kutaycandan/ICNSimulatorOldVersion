@@ -12,7 +12,7 @@ public class Simulator {
 	static PriorityQueue<Event> eventQueue;
 	static int MaxSimulationStep = 10;
 	final int infinity = 2000000000;
-	
+
 	ArrayList <Node> nodes = new ArrayList<Node>();
 	ArrayList <Edge> edges = new ArrayList<Edge>();
 	ArrayList <Prefix> prefixes = new ArrayList<Prefix>();
@@ -33,7 +33,7 @@ public class Simulator {
 		this.time = time;
 		eventQueue = new PriorityQueue<Event>();
 	}
-	public void run() {
+	public void initialize() {
 		//initialize all routes and paths
 		//initialize events
 		//we do not change link costs right now but can change it easily
@@ -42,10 +42,13 @@ public class Simulator {
 			fillRoutingTable(i);
 			nodes.get(i).initializeEvents(10);
 		}
-		
+
+	}
+	public void run() {
+		initialize();
 		Event evt;
 		for(int i =0; i<=MaxSimulationStep; i++) {
-				evt = eventQueue.poll();	
+			evt = eventQueue.poll();	
 			//System.out.println(evt.event_time);
 			if(evt.event_time == i) { //it is time to do this event
 				while(evt.event_time == i) {
@@ -69,9 +72,9 @@ public class Simulator {
 				eventQueue.add(evt);
 			}
 		} 
-		//System.out.println("Surprise mother fucker");
+		System.out.println("Surprise!!!");
 	}
-	
+
 	public void setSimulationStep (int simStep) {
 		MaxSimulationStep = simStep;
 	}
@@ -86,9 +89,9 @@ public class Simulator {
 		for(int i = 0 ; i<prefixes.size();i++) {
 			node.addRoutingTable(prefixes.get(i).getName(), prefixes.get(i).getServingNode());
 		}
-		
+
 	}
-	
+
 	public void run3DegDijsktra(int nodeID) {
 		PriorityQueue <Node>heap = new PriorityQueue<Node>(); //Holds next node which has the minimum distance
 		Node initialNode; //The node that Dijsktra start running
@@ -175,14 +178,17 @@ public class Simulator {
 			visitedNodes[currentNode.nodeID]+=1;
 		}
 		//System.out.println("For node: "+nodeID + " path1= "+Arrays.toString(path1Previous));
+		//System.out.println("For node: "+nodeID + " path1= "+Arrays.toString(path1Distance));
 		//System.out.println("For node: "+nodeID + " path2= "+Arrays.toString(path2Previous));
+		//System.out.println("For node: "+nodeID + " path2= "+Arrays.toString(path2Distance));
 		//System.out.println("For node: "+nodeID + " path3= "+Arrays.toString(path3Previous));
-		
+		//System.out.println("For node: "+nodeID + " path3= "+Arrays.toString(path3Distance)); 
 		for(int i =0; i < nodes.size(); i++) {
+			//System.out.println(levelTwoPathBuilding(i,nodeID));
 			buildForwardingTable(1, nodeID, i, levelOnePathBuilding(i,nodeID));
 			buildForwardingTable(2, nodeID, i, levelTwoPathBuilding(i,nodeID));
 			buildForwardingTable(3, nodeID, i, levelThreePathBuilding(i,nodeID));
-		}
+		} 
 		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q1.toString());
 		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q2.toString());
 		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q3.toString());
@@ -230,7 +236,8 @@ public class Simulator {
 		prev = path3Previous[init];
 		while(prev!=nodeID) {
 			dist = path3Distance[init]-edgePair.get(""+init+"-"+prev);
-			if( dist < path3Distance[prev]){ //can go up only one level or two levels
+			//System.out.println("prev: " + prev+ " dist: " + dist);
+			if( dist < path3Distance[prev] || (dist==path3Distance[prev]&& path3Previous[prev] ==init)){ //can go up only one level or two levels
 				int dist2 = path2Distance[prev];  //distance if it came from level 2
 				int dist1 = path1Distance[prev];  //distance if it came from level 1
 				if(dist2 == dist) { //it goes level 2
