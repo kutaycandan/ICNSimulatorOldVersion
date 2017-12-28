@@ -14,19 +14,21 @@ public class Simulator {
 	final int infinity = 2000000000;
 
 	ArrayList <Node> nodes = new ArrayList<Node>();
-	ArrayList <Edge> edges = new ArrayList<Edge>();
+	HashMap <String,Edge> edges = new HashMap<String,Edge>();
 	ArrayList <Prefix> prefixes = new ArrayList<Prefix>();
-	HashMap <String,Integer> edgePair= new HashMap<String,Integer>();
+	//HashMap <String,Integer> edgePair= new HashMap<String,Integer>();
 	int [] path1Distance;
 	int [] path2Distance;
 	int [] path3Distance; 
 	int [] path1Previous; 
 	int [] path2Previous; 
 	int [] path3Previous; 
-	int [] visitedNodes; 
+	int [] levelOneVisitedNodes; 
+	int [] levelTwoVisitedNodes; 
+	int [] levelThreeVisitedNodes; 
 	int time;
 
-	public Simulator(ArrayList <Prefix> prefixes, ArrayList <Node> nodes,ArrayList <Edge> edges,int time) {
+	public Simulator(ArrayList <Prefix> prefixes, ArrayList <Node> nodes,HashMap <String,Edge> edges,int time) {
 		this.prefixes=prefixes;
 		this.nodes=nodes;
 		this.edges=edges;
@@ -108,7 +110,9 @@ public class Simulator {
 		path1Previous = new int[nodes.size()];
 		path2Previous = new int[nodes.size()];
 		path3Previous = new int[nodes.size()];
-		visitedNodes = new int[nodes.size()];
+		levelOneVisitedNodes = new int[nodes.size()];
+		levelTwoVisitedNodes = new int[nodes.size()];
+		levelThreeVisitedNodes = new int[nodes.size()];
 		for(int k =0 ; k<nodes.size(); k++) {
 			path1Distance[k]= infinity;
 			path2Distance[k]= infinity;
@@ -116,7 +120,9 @@ public class Simulator {
 			path1Previous[k]= -1;
 			path2Previous[k]= -1;
 			path3Previous[k]= -1;
-			visitedNodes[k] = 0;
+			levelOneVisitedNodes[k] = 0;
+			levelTwoVisitedNodes[k] = 0;
+			levelThreeVisitedNodes[k] = 0;
 		}
 		path1Previous[initialNode.nodeID]=nodeID;
 		path2Previous[initialNode.nodeID]=nodeID;
@@ -130,11 +136,11 @@ public class Simulator {
 		while(!heap.isEmpty()) {
 			currentNode = heap.poll();
 			//A node can be visited at most 3 times while dijsktra-3 running 
-			if(visitedNodes[currentNode.nodeID] < 3) {
+			if(levelOneVisitedNodes[currentNode.nodeID]==0 || levelTwoVisitedNodes[currentNode.nodeID]==0 || levelThreeVisitedNodes[currentNode.nodeID]==0) {
 				//For each edge of current node
 				for (Edge e:(currentNode.edgeList.values()) ) {
 					//in an edge: first node = current node , second node = neighbor node
-					edgePair.put(""+e.firstNode+"-"+e.secondNode, e.cost);
+					//edgePair.put(""+e.firstNode+"-"+e.secondNode, e.cost);
 					//New distance to neighbors which is passing through the current node
 					int dist = currentNode.dijDist + e.cost;
 					//Check if the current node was reached via the current edge e
@@ -152,7 +158,7 @@ public class Simulator {
 							}
 							path1Distance[e.secondNode]= dist;
 							path1Previous[e.secondNode]=e.firstNode;
-							heap.add(new Node(nodes.get(e.secondNode),dist,e.firstNode));
+							heap.add(new Node(nodes.get(e.secondNode),dist,e.firstNode,1));
 						}
 						//Check neighbor's path2 distance is more than new calculated distance
 						else if(dist < path2Distance[e.secondNode]) {
@@ -164,24 +170,31 @@ public class Simulator {
 							}
 							path2Distance[e.secondNode]= dist;
 							path2Previous[e.secondNode]=e.firstNode;
-							heap.add(new Node(nodes.get(e.secondNode),dist,e.firstNode));
+							heap.add(new Node(nodes.get(e.secondNode),dist,e.firstNode,2));
 						}
 						//Check neighbor's path3 distance is more than new calculated distance
 						else if (dist < path3Distance[e.secondNode]) {
 							path3Distance[e.secondNode]= dist;
 							path3Previous[e.secondNode]=e.firstNode;
-							heap.add(new Node(nodes.get(e.secondNode),dist,e.firstNode));
+							heap.add(new Node(nodes.get(e.secondNode),dist,e.firstNode,3));
 						}
 					}
 				}
 			}
-			visitedNodes[currentNode.nodeID]+=1;
+			if(currentNode.dijLevel == 0 || currentNode.dijLevel==1) {
+				levelOneVisitedNodes[currentNode.nodeID]+=1;
+			} else if(currentNode.dijLevel == 2) {
+				levelTwoVisitedNodes[currentNode.nodeID]+=1;
+			} else {
+				levelThreeVisitedNodes[currentNode.nodeID]+=1;
+			}
+			
 		}
-		//System.out.println("For node: "+nodeID + " path1= "+Arrays.toString(path1Previous));
+		System.out.println("For node: "+nodeID + " path1= "+Arrays.toString(path1Previous));
 		//System.out.println("For node: "+nodeID + " path1= "+Arrays.toString(path1Distance));
-		//System.out.println("For node: "+nodeID + " path2= "+Arrays.toString(path2Previous));
+		System.out.println("For node: "+nodeID + " path2= "+Arrays.toString(path2Previous));
 		//System.out.println("For node: "+nodeID + " path2= "+Arrays.toString(path2Distance));
-		//System.out.println("For node: "+nodeID + " path3= "+Arrays.toString(path3Previous));
+		System.out.println("For node: "+nodeID + " path3= "+Arrays.toString(path3Previous));
 		//System.out.println("For node: "+nodeID + " path3= "+Arrays.toString(path3Distance)); 
 		for(int i =0; i < nodes.size(); i++) {
 			//System.out.println(levelTwoPathBuilding(i,nodeID));
@@ -193,7 +206,7 @@ public class Simulator {
 		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q2.toString());
 		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q3.toString());
 	}
-
+	
 	public String levelOnePathBuilding(int init, int nodeID) {
 		String path = "";
 		int prev;
@@ -214,7 +227,13 @@ public class Simulator {
 		//////////////////////Path2//////////////////////////
 		prev = path2Previous[init];
 		while(prev!=nodeID) {
-			dist = path2Distance[init]-edgePair.get(""+init+"-"+prev);
+			if(!edges.containsKey(""+init+"-"+prev)) {
+				System.out.println(init + "     " + prev);
+				System.out.println(edges.get("3-1"));
+			}
+				
+			
+			dist = path2Distance[init]-edges.get(""+init+"-"+prev).cost;
 			if( dist < path2Distance[prev]){
 				path += prev+"-";
 				return path + levelOnePathBuilding(prev, nodeID);
@@ -235,7 +254,7 @@ public class Simulator {
 		//////////////////Path3///////////////////
 		prev = path3Previous[init];
 		while(prev!=nodeID) {
-			dist = path3Distance[init]-edgePair.get(""+init+"-"+prev);
+			dist = path3Distance[init]-edges.get(""+init+"-"+prev).cost;
 			//System.out.println("prev: " + prev+ " dist: " + dist);
 			if( dist < path3Distance[prev] || (dist==path3Distance[prev]&& path3Previous[prev] ==init)){ //can go up only one level or two levels
 				int dist2 = path2Distance[prev];  //distance if it came from level 2

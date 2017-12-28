@@ -3,12 +3,13 @@ package simulator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class ReadInput {
 	String inputFileName;
 	ArrayList <Node> nodes = new ArrayList<Node>();
-	ArrayList <Edge> edges = new ArrayList<Edge>();
+	HashMap <String,Edge> edges = new HashMap<String,Edge>();
 	ArrayList <Prefix> prefixes = new ArrayList<Prefix>();
 	public ReadInput(String inputFileName) {
 		this.inputFileName=inputFileName;
@@ -53,8 +54,8 @@ public class ReadInput {
 				String[] edgeInfo = sc.nextLine().split("-");
 				Edge edge1 = new Edge (Integer.parseInt(edgeInfo[0]),Integer.parseInt(edgeInfo[1]),Integer.parseInt(edgeInfo[2]));
 				Edge edge2 = new Edge (Integer.parseInt(edgeInfo[1]),Integer.parseInt(edgeInfo[0]),Integer.parseInt(edgeInfo[2]));
-				edges.add(edge1);
-				edges.add(edge2);
+				edges.put(edgeInfo[0]+"-"+edgeInfo[1],edge1);
+				edges.put(edgeInfo[1]+"-"+edgeInfo[0],edge2);
 				nodes.get(Integer.parseInt(edgeInfo[0])).addEdge(Integer.parseInt(edgeInfo[1]),edge1);
 				nodes.get(Integer.parseInt(edgeInfo[1])).addEdge(Integer.parseInt(edgeInfo[0]),edge2);
 			}
@@ -67,7 +68,7 @@ public class ReadInput {
 	public  ArrayList <Node> getNodeList(){
 		return nodes;
 	}
-	public  ArrayList <Edge> getEdgeList(){
+	public  HashMap <String,Edge> getEdgeList(){
 		return edges;
 	}
 	public  ArrayList <Prefix> getPrefixList(){

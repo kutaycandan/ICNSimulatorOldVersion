@@ -8,6 +8,9 @@ public class ForwardingTableRow {
 	Queue<Integer> q2 = new LinkedList <Integer>();
 	Queue<Integer> q3 = new LinkedList <Integer>();
 	int degree;
+	int q1cost = 0;
+	int	q2cost = 0;
+	int q3cost = 0;
 	public ForwardingTableRow() {
 		this.q1 = new LinkedList <Integer>();
 		this.q2 = new LinkedList <Integer>();
