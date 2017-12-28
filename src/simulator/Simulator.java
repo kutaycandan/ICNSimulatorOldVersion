@@ -44,7 +44,7 @@ public class Simulator {
 			fillRoutingTable(i);
 			nodes.get(i).initializeEvents(10);
 		}
-
+		//System.out.println(pathCost(0,5,"4-1-0"));
 	}
 	public void run() {
 		initialize();
@@ -190,11 +190,11 @@ public class Simulator {
 			}
 			
 		}
-		System.out.println("For node: "+nodeID + " path1= "+Arrays.toString(path1Previous));
+		//System.out.println("For node: "+nodeID + " path1= "+Arrays.toString(path1Previous));
 		//System.out.println("For node: "+nodeID + " path1= "+Arrays.toString(path1Distance));
-		System.out.println("For node: "+nodeID + " path2= "+Arrays.toString(path2Previous));
+		//System.out.println("For node: "+nodeID + " path2= "+Arrays.toString(path2Previous));
 		//System.out.println("For node: "+nodeID + " path2= "+Arrays.toString(path2Distance));
-		System.out.println("For node: "+nodeID + " path3= "+Arrays.toString(path3Previous));
+		//System.out.println("For node: "+nodeID + " path3= "+Arrays.toString(path3Previous));
 		//System.out.println("For node: "+nodeID + " path3= "+Arrays.toString(path3Distance)); 
 		for(int i =0; i < nodes.size(); i++) {
 			//System.out.println(levelTwoPathBuilding(i,nodeID));
@@ -202,6 +202,7 @@ public class Simulator {
 			buildForwardingTable(2, nodeID, i, levelTwoPathBuilding(i,nodeID));
 			buildForwardingTable(3, nodeID, i, levelThreePathBuilding(i,nodeID));
 		} 
+		//System.out.println("init:"+nodeID+" to 5: "+levelOnePathBuilding(5,nodeID));
 		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q1.toString());
 		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q2.toString());
 		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q3.toString());
@@ -291,6 +292,7 @@ public class Simulator {
 			row = new ForwardingTableRow();
 		}
 		Queue<Integer> list = new LinkedList <Integer>();
+		int pathCost = pathCost(initialNode,targetNode,path);
 		//construct the path
 		for(int i = pathInfo.length-1 ; i>=0; i--) {
 			list.add(Integer.parseInt(pathInfo[i]));
@@ -298,14 +300,36 @@ public class Simulator {
 		//choose which row
 		if(pathId == 1) {
 			row.q1 = list;
+			row.q1cost = pathCost;
 		} else if(pathId ==2) {
 			row.q2 = list;
+			row.q2cost = pathCost;
 		} else {
 			row.q3 = list;
+			row.q3cost = pathCost;
 		}
 
 		fwTable.put(targetNode, row);
 	}
-
+	//Path cost calculation
+	public int pathCost(int initialNode,int targetNode, String path) {
+		String[] pathInfo = path.split("-");
+		int cost = 0;
+		if(initialNode == targetNode) {
+			return 0;
+		}else if(pathInfo.length==1) {
+			return edges.get(initialNode+"-"+targetNode).cost;
+		}
+		String first;
+		String second;
+		for(int i =pathInfo.length-1; i>0;i--) {
+			first = pathInfo[i];
+			second = pathInfo[i-1];
+			cost+=edges.get(first+"-"+second).cost;
+		}
+		
+		cost+=edges.get(pathInfo[0]+"-"+targetNode).cost;
+		return cost;
+	}
 
 }
