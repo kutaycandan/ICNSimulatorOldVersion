@@ -1,9 +1,10 @@
 package simulator;
 
-import java.awt.Container;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
@@ -45,12 +46,13 @@ public class Simulator {
 			nodes.get(i).initializeEvents(MaxSimulationStep);
 		}
 	}
-	public void run() {
+	public void run() throws IOException {
+		BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"));
 		initialize();
 		Event evt;
 		while(!eventQueue.isEmpty()) {
 			evt = eventQueue.poll();//it is time to do this event
-			//System.out.println(evt.toString());
+			writer.write(evt.toString());
 			if(evt.event_type == 0) { //send an event
 				if(evt.event_packet.sourceID == evt.event_packet.path.peek()) { //initial send
 					nodes.get(evt.event_packet.path.peek()).initialSend(evt);
@@ -63,6 +65,7 @@ public class Simulator {
 
 		//System.out.println("Surprise!!!");
 		printEdgeCount();
+		writer.close();
 	}
 
 	public void printEdgeCount () {

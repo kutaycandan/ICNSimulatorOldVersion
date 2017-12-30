@@ -23,7 +23,6 @@ public class Event implements Comparable{
 	}
 	@Override
 	public String toString() {
-		return "Event type: "+event_type+ " at time "+ event_time + " and the packet is " + event_packet.type;
-		
+		return "Event type: "+event_type+ " at time "+ event_time + " and the packet is " + event_packet.type + "\n";	
 	}
 }

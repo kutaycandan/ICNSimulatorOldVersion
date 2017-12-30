@@ -23,7 +23,7 @@ public class Edge {
 		this.countList = e.getCountList();
 	}
 	public void addCount (int time) {
-		countList[time]++;
+		countList[time]+=1;
 	}
 	public int[]getCountList() {
 		return this.countList;
