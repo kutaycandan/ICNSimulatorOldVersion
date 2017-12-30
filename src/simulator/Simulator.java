@@ -51,6 +51,7 @@ public class Simulator {
 		initialize();
 		Event evt;
 		while(!eventQueue.isEmpty()) {
+			System.out.println(eventQueue.size());
 			evt = eventQueue.poll();//it is time to do this event
 			writer.write(evt.toString());
 			if(evt.event_type == 0) { //send an event

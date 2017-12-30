@@ -11,7 +11,7 @@ public class Event implements Comparable{
 	@Override
 	public int compareTo(Object evt) {
 		if(this.event_time == ((Event)evt).event_time) {
-			return 0;
+			return 1;
 		} else if ( this.event_time > ((Event)evt).event_time) {
 			return 1;
 		} else {

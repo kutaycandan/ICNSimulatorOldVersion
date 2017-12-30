@@ -30,11 +30,11 @@ Event type: 0 at time 1 and the packet is 0
 Event type: 0 at time 1 and the packet is 0
 Event type: 1 at time 2 and the packet is 0
 Event type: 1 at time 2 and the packet is 0
-Event type: 0 at time 2 and the packet is 1
-Event type: 0 at time 2 and the packet is 1
 Event type: 1 at time 2 and the packet is 0
-Event type: 1 at time 3 and the packet is 1
+Event type: 0 at time 2 and the packet is 1
+Event type: 0 at time 2 and the packet is 1
 Event type: 1 at time 3 and the packet is 0
+Event type: 1 at time 3 and the packet is 1
 Event type: 1 at time 3 and the packet is 1
 Event type: 0 at time 3 and the packet is 1
 Event type: 1 at time 4 and the packet is 1

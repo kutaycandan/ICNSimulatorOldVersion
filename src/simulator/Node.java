@@ -150,9 +150,10 @@ public class Node implements Comparable{
 					}
 					System.out.println(); */
 				}
-				packetDestID = pc.destinationNodeId;
-				p = new Packet(this.nodeID, packetDestID,packetType, pref, pathInfo);
+				
 				for(int numPacket = 0; numPacket<totalPacket; numPacket++) {
+					packetDestID = pc.destinationNodeId;
+					p = new Packet(this.nodeID, packetDestID,packetType, pref, pathInfo);
 					e = new Event(event_type, event_time);
 					e.addPacket(p);
 					/*System.out.println("sourceID: " + p.sourceID +  " destID: " + p.destinatonID + " event time: " + event_time);
@@ -174,7 +175,7 @@ public class Node implements Comparable{
 			evt.event_packet.returnPath.add(this.nodeID);
 		int dum = evt.event_packet.path.remove();  //I remove myself from the path;
 		System.out.println(this.nodeID + "   removed:  " + dum);
-		evt.event_type = 1;
+		evt.event_type = 1; //receive
 		////////PACKET COUNT ///////
 		Edge e = Simulator.edges.get(""+this.nodeID+"-"+evt.event_packet.path.peek());
 		//System.out.println(""+this.nodeID+"-"+evt.event_packet.path.peek());
@@ -191,7 +192,7 @@ public class Node implements Comparable{
 		if(evt.event_packet.type == 0) //if it is an interest packet, return path should be added
 			evt.event_packet.returnPath.add(this.nodeID);
 		evt.event_packet.path.remove();
-		evt.event_type = 1;
+		evt.event_type = 1; //receive 
 		////////PACKET COUNT ///////
 		Edge e = Simulator.edges.get(""+this.nodeID+"-"+evt.event_packet.path.peek());
 		//System.out.println(""+this.nodeID+"-"+evt.event_packet.path.peek());
