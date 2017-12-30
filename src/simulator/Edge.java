@@ -6,9 +6,26 @@ public class Edge {
 	int firstNode;
 	int secondNode;
 	int cost;
+	int[] countList;
+	final int EDGECAPACITY = 200;
+	int count;
 	public Edge(int firstNode,int secondNode,int cost) {
 		this.firstNode=firstNode;
 		this.secondNode=secondNode;
 		this.cost=cost;
+		countList = new int [Simulator.MaxSimulationStep];
+	}
+	
+	public Edge(Edge e) {
+		this.firstNode=e.firstNode;
+		this.secondNode=e.secondNode;
+		this.cost=e.cost;
+		this.countList = e.getCountList();
+	}
+	public void addCount (int time) {
+		countList[time]++;
+	}
+	public int[]getCountList() {
+		return this.countList;
 	}
 }

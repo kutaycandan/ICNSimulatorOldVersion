@@ -1,10 +1,13 @@
 package simulator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Random;
+import java.util.Stack;
 
 
 public class Node implements Comparable{
@@ -84,82 +87,162 @@ public class Node implements Comparable{
 		String prefixName;
 		int prefDataSize = 1000;
 		Prefix pref;
-		
+
 		int packetDestID;
 		int packetType =0; //initial ones should be a interest packet
 		Queue<Integer> pathInfo;
 		Packet p;
 		Event e; 
-
+		int producer_size;
 		for (int i =0; i< demandedPrefixes.size(); i++) {
+			PriorityQueue<PathChoice> pathOrder = new PriorityQueue<PathChoice>();
 			prefixName = demandedPrefixes.get(i);
 			pref = new Prefix(prefixName, prefDataSize);
-			event_time = rand.nextInt(simStep);
-			for (int numProducer = 0; numProducer < 3; numProducer++) {
-				//Send an interest to 3 producer assuming there exists 3 producer
-				//Send an interest to their best route
-				packetDestID = routingTable.get(prefixName).get(numProducer);
-				pathInfo = forwardingtable.get(packetDestID).q1;
+			event_time = 1; //rand.nextInt(simStep);
+			producer_size = routingTable.get(prefixName).size(); 
+			for (int j = 0; j<producer_size; j++) {
+				packetDestID = routingTable.get(prefixName).get(j);
+				ForwardingTableRow ftr = forwardingtable.get(packetDestID);
+				if(ftr.q1cost != 0) {
+					pathOrder.add(new PathChoice(packetDestID, 1, ftr.q1cost));
+				}
+				if(ftr.q2cost != 0) {
+					pathOrder.add(new PathChoice(packetDestID,2, ftr.q2cost));
+				}
+				if(ftr.q3cost != 0) {
+					pathOrder.add(new PathChoice(packetDestID,3, ftr.q3cost));
+				}
+
+			}
+			int poSize = pathOrder.size();
+			int totalPacket = 30/Math.min(3, poSize);
+			for(int w =0; w < poSize; w++) {
+				if(w ==3) {
+					break;
+				}
+				PathChoice pc = pathOrder.poll();
+				//System.out.println("NodeID: " + this.nodeID + " destID: " + pc.destinationNodeId + " and prefix: " + prefixName );
+				if(pc.queueId == 1) {
+					pathInfo = forwardingtable.get(pc.destinationNodeId).q1;
+					/*System.out.println("queueID:1 path:");
+					for (int anan = 0; anan<pathInfo.size(); anan++) {
+						int dummy =pathInfo.poll();
+						System.out.print(dummy +  " - ");
+						pathInfo.add(dummy);
+					}
+					System.out.println(); */
+				} else if(pc.queueId == 2) {
+					pathInfo = forwardingtable.get(pc.destinationNodeId).q2;
+					/*System.out.println("queueID:2 path:");
+					for (int anan = 0; anan<pathInfo.size(); anan++) {
+						int dummy =pathInfo.poll();
+						System.out.print(dummy +  " - ");
+						pathInfo.add(dummy);
+					}
+					System.out.println(); */
+				} else {
+					pathInfo = forwardingtable.get(pc.destinationNodeId).q3;
+					System.out.println("queueID:3 path:");
+					/*for (int anan = 0; anan<pathInfo.size(); anan++) {
+						int dummy =pathInfo.poll();
+						System.out.print(dummy +  " - ");
+						pathInfo.add(dummy);
+					}
+					System.out.println(); */
+				}
+				packetDestID = pc.destinationNodeId;
 				p = new Packet(this.nodeID, packetDestID,packetType, pref, pathInfo);
-				for(int numPacket = 0; numPacket<10; numPacket++) {
+				for(int numPacket = 0; numPacket<totalPacket; numPacket++) {
 					e = new Event(event_type, event_time);
 					e.addPacket(p);
+					/*System.out.println("sourceID: " + p.sourceID +  " destID: " + p.destinatonID + " event time: " + event_time);
+					for (int anan = 0; anan<p.path.size(); anan++) {
+						int dummy =pathInfo.poll();
+						System.out.print(dummy +  " - ");
+						pathInfo.add(dummy);
+					} 
+					System.out.println(); */
 					Simulator.addEventQueue(e);	
 				}
-			}
+			}	
+
+
 		}
+	}
+	public void initialSend(Event evt) {
+		if(evt.event_packet.type == 0) //if it is an interest packet, return path should be added
+			evt.event_packet.returnPath.add(this.nodeID);
+		int dum = evt.event_packet.path.remove();  //I remove myself from the path;
+		System.out.println(this.nodeID + "   removed:  " + dum);
+		evt.event_type = 1;
+		////////PACKET COUNT ///////
+		Edge e = Simulator.edges.get(""+this.nodeID+"-"+evt.event_packet.path.peek());
+		//System.out.println(""+this.nodeID+"-"+evt.event_packet.path.peek());
+		//System.out.println(e.cost);
+		e.addCount(evt.event_time);
+		evt.event_time++;
+		Simulator.addEventQueue(evt);
+
+
+
 	}
 
 	public void sendPacket(Event evt){
-		//System.out.println("At node: "+ nodeID +" " + evt.toString());
-		//if path is empty them I am sending the packet to myself or 
-		if(!evt.event_packet.path.isEmpty()) {
-			//If this node is sending something which means it should be at the head of the queue in that time
-			evt.event_packet.path.remove();
-		}
 		if(evt.event_packet.type == 0) //if it is an interest packet, return path should be added
-			evt.event_packet.returnPath.add(nodeID);
+			evt.event_packet.returnPath.add(this.nodeID);
+		evt.event_packet.path.remove();
+		evt.event_type = 1;
+		////////PACKET COUNT ///////
+		Edge e = Simulator.edges.get(""+this.nodeID+"-"+evt.event_packet.path.peek());
+		//System.out.println(""+this.nodeID+"-"+evt.event_packet.path.peek());
+		//System.out.println(e.cost);
+		e.addCount(evt.event_time);
+		evt.event_time++;
+		Simulator.addEventQueue(evt);	
 
-		evt.event_type = 1; //change event type to receive because
-		evt.event_time +=1;	//next time whom is at the head of the path will receive it
-		Simulator.addEventQueue(evt);
-		
+
 	}
 
 	public void receivePacket(Event evt) {
-/////////////////
-//// KUTAY  /////
-/////////////////
-//Check this part of the code to count which edge is used
-//Head of the path is the node that packet will be sent or has just received
-//You need to check on which edge the current node and the next node is connected
-//We assumed there exist only one edge between any two nodes.
-		if(evt.event_packet.destinatonID == nodeID) { //this node is the destination 
-			sendDataPacket(evt);
-		} else {
+		if(evt.event_packet.destinatonID == this.nodeID && evt.event_packet.type==0) { //this node is the destination 
+			createDataPacket(evt);
+		}else if(evt.event_packet.destinatonID == this.nodeID && evt.event_packet.type==1) {
+
+		}
+		else {
 			evt.event_type = 0;
 			sendPacket(evt);
-		}
+		} 
 	}
 
-	public void sendDataPacket(Event evt) {
-		//System.out.println("At node: "+ nodeID +" " + evt.toString());
-		int event_time = evt.event_time+1;
+	public void createDataPacket(Event evt) {
+		int event_time = evt.event_time;
 		int event_type = 0; //initially data packets should be a send event
-		int packetDestID;
+		int packetDestID = evt.event_packet.sourceID;
+		int packetSourceID = evt.event_packet.destinatonID;
 		int packetType =1; //initial ones should be a data packet
-		Queue<Integer> returnPathInfo;
+		evt.event_packet.returnPath.add(this.nodeID);
+		Queue<Integer> path = reversePath(evt.event_packet.returnPath);
 		Packet p;
 		Event e;
-		packetDestID = evt.event_packet.sourceID;
-		returnPathInfo = evt.event_packet.returnPath;
-		p = new Packet(this.nodeID, packetDestID,packetType, returnPathInfo);
+		p = new Packet(packetSourceID, packetDestID,packetType, path);
 		e = new Event(event_type, event_time);
 		e.addPacket(p);
 		Simulator.addEventQueue(e);	
-
 	}
 
+	public Queue<Integer> reversePath (Queue<Integer> path) {
+		Queue<Integer> reversePath = new LinkedList<Integer>();
+		Stack<Integer> ps = new Stack<Integer> ();
+		int size = path.size();
+		while(!path.isEmpty()) {
+			ps.push(path.poll());
+		}
+		while(!ps.isEmpty()) {
+			reversePath.add(ps.pop());
+		}
+		return reversePath;
+	}
 
 }
 

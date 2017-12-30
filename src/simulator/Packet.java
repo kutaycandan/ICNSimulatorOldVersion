@@ -33,8 +33,8 @@ public class Packet {
 		sequenceNumber = 1;
 		this.sourceID = sourceID;
 		this.destinatonID = destinationID;
-		this.type = type;   //0 interest 1 data  
-		this.returnPath = returnPathInfo;
+		this.type = type;   //0 interest 1 data 
+		this.path = returnPathInfo;
 	}
 	
 	

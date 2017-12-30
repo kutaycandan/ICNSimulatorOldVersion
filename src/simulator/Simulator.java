@@ -1,5 +1,6 @@
 package simulator;
 
+import java.awt.Container;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -14,9 +15,8 @@ public class Simulator {
 	final int infinity = 2000000000;
 
 	ArrayList <Node> nodes = new ArrayList<Node>();
-	HashMap <String,Edge> edges = new HashMap<String,Edge>();
+	static HashMap <String,Edge> edges = new HashMap<String,Edge>();  //Please add an edge with following format: "<firstNodeID>-<secondNodeID>
 	ArrayList <Prefix> prefixes = new ArrayList<Prefix>();
-	//HashMap <String,Integer> edgePair= new HashMap<String,Integer>();
 	int [] path1Distance;
 	int [] path2Distance;
 	int [] path3Distance; 
@@ -42,41 +42,34 @@ public class Simulator {
 		for(int i = 0 ; i < nodes.size() ; i++ ) {
 			run3DegDijsktra(i);
 			fillRoutingTable(i);
-			nodes.get(i).initializeEvents(10);
+			nodes.get(i).initializeEvents(MaxSimulationStep);
 		}
-		//System.out.println(pathCost(0,5,"4-1-0"));
 	}
 	public void run() {
 		initialize();
 		Event evt;
-		for(int i =0; i<=MaxSimulationStep; i++) {
-			evt = eventQueue.poll();	
-			//System.out.println(evt.event_time);
-			if(evt.event_time == i) { //it is time to do this event
-				while(evt.event_time == i) {
-					if(evt.event_type == 0) {//it is a send event
-						if(evt.event_packet.path.isEmpty()) {
-							nodes.get(evt.event_packet.destinatonID).sendPacket(evt);
-						} else {
-							nodes.get(evt.event_packet.path.peek()).sendPacket(evt);
-						}
-					} else if(evt.event_type == 1){ //it is a receive event
-						if(evt.event_packet.path.isEmpty()) {
-							nodes.get(evt.event_packet.destinatonID).receivePacket(evt);
-						} else {
-							nodes.get(evt.event_packet.path.peek()).receivePacket(evt);	
-						}
-					}
-					evt = eventQueue.poll();
+		while(!eventQueue.isEmpty()) {
+			evt = eventQueue.poll();//it is time to do this event
+			//System.out.println(evt.toString());
+			if(evt.event_type == 0) { //send an event
+				if(evt.event_packet.sourceID == evt.event_packet.path.peek()) { //initial send
+					nodes.get(evt.event_packet.path.peek()).initialSend(evt);
 				}
-				eventQueue.add(evt);
-			} else {
-				eventQueue.add(evt);
+			} else { //receive an event
+				nodes.get(evt.event_packet.path.peek()).receivePacket(evt);
 			}
-		} 
-		System.out.println("Surprise!!!");
+		}
+
+
+		//System.out.println("Surprise!!!");
+		printEdgeCount();
 	}
 
+	public void printEdgeCount () {
+		for(Edge e: edges.values()) {
+			System.out.println(e.firstNode + " - "  +  e.secondNode + " " +Arrays.toString(e.countList));
+		}
+	}
 	public void setSimulationStep (int simStep) {
 		MaxSimulationStep = simStep;
 	}
@@ -98,7 +91,6 @@ public class Simulator {
 		PriorityQueue <Node>heap = new PriorityQueue<Node>(); //Holds next node which has the minimum distance
 		Node initialNode; //The node that Dijsktra start running
 		Node currentNode; //The node that is being examined
-		//Edge e; //An edge of the current node
 		ArrayList<Integer> pathInfo;
 		initialNode = nodes.get(nodeID);
 		heap.add(initialNode);
@@ -140,7 +132,6 @@ public class Simulator {
 				//For each edge of current node
 				for (Edge e:(currentNode.edgeList.values()) ) {
 					//in an edge: first node = current node , second node = neighbor node
-					//edgePair.put(""+e.firstNode+"-"+e.secondNode, e.cost);
 					//New distance to neighbors which is passing through the current node
 					int dist = currentNode.dijDist + e.cost;
 					//Check if the current node was reached via the current edge e
@@ -188,7 +179,6 @@ public class Simulator {
 			} else {
 				levelThreeVisitedNodes[currentNode.nodeID]+=1;
 			}
-			
 		}
 		//System.out.println("For node: "+nodeID + " path1= "+Arrays.toString(path1Previous));
 		//System.out.println("For node: "+nodeID + " path1= "+Arrays.toString(path1Distance));
@@ -203,11 +193,12 @@ public class Simulator {
 			buildForwardingTable(3, nodeID, i, levelThreePathBuilding(i,nodeID));
 		} 
 		//System.out.println("init:"+nodeID+" to 5: "+levelOnePathBuilding(5,nodeID));
+		//System.out.println("init:"+nodeID+" to 0: "+levelOnePathBuilding(0,nodeID));
 		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q1.toString());
 		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q2.toString());
 		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q3.toString());
 	}
-	
+
 	public String levelOnePathBuilding(int init, int nodeID) {
 		String path = "";
 		int prev;
@@ -232,8 +223,8 @@ public class Simulator {
 				System.out.println(init + "     " + prev);
 				System.out.println(edges.get("3-1"));
 			}
-				
-			
+
+
 			dist = path2Distance[init]-edges.get(""+init+"-"+prev).cost;
 			if( dist < path2Distance[prev]){
 				path += prev+"-";
@@ -297,6 +288,7 @@ public class Simulator {
 		for(int i = pathInfo.length-1 ; i>=0; i--) {
 			list.add(Integer.parseInt(pathInfo[i]));
 		}
+		list.add(targetNode);
 		//choose which row
 		if(pathId == 1) {
 			row.q1 = list;
@@ -327,7 +319,6 @@ public class Simulator {
 			second = pathInfo[i-1];
 			cost+=edges.get(first+"-"+second).cost;
 		}
-		
 		cost+=edges.get(pathInfo[0]+"-"+targetNode).cost;
 		return cost;
 	}

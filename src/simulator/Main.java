@@ -14,8 +14,8 @@ public class Main {
 		rd.readInput();
 		int time = 2000;
 		Simulator sim = new Simulator(rd.getPrefixList(),rd.getNodeList(),rd.getEdgeList(),time);
-		sim.initialize();
-		//sim.run();
+		//sim.initialize();
+		sim.run();
 	}
 
 
