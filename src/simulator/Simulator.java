@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -17,6 +18,7 @@ public class Simulator {
 
 	ArrayList <Node> nodes = new ArrayList<Node>(); //List of all nodes
 	static HashMap <String,Edge> edges = new HashMap<String,Edge>();  //Please add an edge with following format: "<firstNodeID>-<secondNodeID>
+	HashMap <String,EdgeOutput> edgesOutput = new HashMap<String,EdgeOutput>();
 	ArrayList <Prefix> prefixes = new ArrayList<Prefix>();  //List of all prefixes
 	int [] path1Distance;
 	int [] path2Distance;
@@ -97,22 +99,26 @@ public class Simulator {
 			int firstNode=0;
 			int secondNode=0;
 			for(Edge e: edges.values()) {
-				if(count==0) {
+				String key = ""+Math.min(e.firstNode, e.secondNode)+"-"+Math.max(e.firstNode,e.secondNode);
+				if(edgesOutput.containsKey(key)) {
+					for(int i =0;i<e.countList.length;i++) {
+						edgesOutput.get(key).edgeLoad[i]+=e.countList[i];
+					}
+				}
+				else {
 					tmp = new int[MaxSimulationStep];
-					firstNode=e.firstNode;
-					secondNode=e.secondNode;
-				}
-				count++;
-				for(int i =0;i<tmp.length;i++) {
-					tmp[i]+=e.countList[i];
-				}
-				
-				if (count == 2) {
-					count = 0;
-					//System.out.println(firstNode + " - "  +  secondNode + " " +Arrays.toString(tmp));
-					bw.write(firstNode + " - "  +  secondNode + " " +Arrays.toString(tmp)+"\n");
+					for(int i =0;i<tmp.length;i++) {
+						tmp[i]+=e.countList[i];
+					}
+					EdgeOutput eo = new EdgeOutput(key,tmp);
+					edgesOutput.put(key, eo);
 				}
 			}
+			
+			for(EdgeOutput eo: edgesOutput.values()) {
+				bw.write(eo.edge + " " +Arrays.toString(eo.edgeLoad)+"\n");
+			}
+			
 			bw.close();
 			fw.close();
 			System.out.println("Done");

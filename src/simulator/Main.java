@@ -16,7 +16,7 @@ public class Main {
 		int time = 2000;
 		Simulator sim = new Simulator(rd.getPrefixList(),rd.getNodeList(),rd.getEdgeList(),time);
 		//Write 3 for 3-way dijsktra or 1 for 1-way dijsktra
-		sim.run(3);
+		sim.run(1);
 	}
 
 
