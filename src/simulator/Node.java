@@ -193,7 +193,7 @@ public class Node implements Comparable{
 					System.out.println(); */
 				} else {
 					pathInfo = forwardingtable.get(pc.destinationNodeId).q3;
-					System.out.println("queueID:3 path:");
+					//System.out.println("queueID:3 path:");
 					/*for (int anan = 0; anan<pathInfo.size(); anan++) {
 						int dummy =pathInfo.poll();
 						System.out.print(dummy +  " - ");
@@ -233,7 +233,7 @@ public class Node implements Comparable{
 		if(evt.event_packet.type == 0) //if it is an interest packet, return path should be added
 			evt.event_packet.returnPath.add(this.nodeID);
 		int dum = evt.event_packet.path.remove();  //I remove myself from the path;
-		System.out.println(this.nodeID + "   removed:  " + dum);
+		//System.out.println(this.nodeID + "   removed:  " + dum);
 		evt.event_type = 1; //receive
 		////////PACKET COUNT ///////
 		Edge e = Simulator.edges.get(""+this.nodeID+"-"+evt.event_packet.path.peek());

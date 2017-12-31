@@ -68,17 +68,13 @@ public class Simulator {
 		initialize(simType);
 		Event evt;
 		while(!eventQueue.isEmpty()) {
-			System.out.println(eventQueue.size());
+			//System.out.println(eventQueue.size());
 			evt = eventQueue.poll();//it is time to do this event
-			System.out.println(evt.toString());
+			//System.out.println(evt.toString());
 			writer.write(evt.toString());
 			if(evt.event_type == 0) { //send an event
 				if(evt.event_packet.sourceID == evt.event_packet.path.peek()) { //initial send
 					nodes.get(evt.event_packet.path.peek()).initialSend(evt);
-				}
-				else {
-					System.out.println("lol");
-					//eventQueue.add(evt);
 				}
 			} else { //receive an event
 				nodes.get(evt.event_packet.path.peek()).receivePacket(evt);
@@ -87,11 +83,11 @@ public class Simulator {
 
 
 		//System.out.println("Surprise!!!");
-		printEdgeCount();
+		calculateEdgeCount();
 		writer.close();
 	}
 
-	public void printEdgeCount () {
+	public void calculateEdgeCount () {
 		for(Edge e: edges.values()) {
 			System.out.println(e.firstNode + " - "  +  e.secondNode + " " +Arrays.toString(e.countList));
 		}
@@ -246,8 +242,8 @@ public class Simulator {
 		prev = path2Previous[init];
 		while(prev!=nodeID) {
 			if(!edges.containsKey(""+init+"-"+prev)) {
-				System.out.println(init + "     " + prev);
-				System.out.println(edges.get("3-1"));
+				//System.out.println(init + "     " + prev);
+				//System.out.println(edges.get("3-1"));
 			}
 
 

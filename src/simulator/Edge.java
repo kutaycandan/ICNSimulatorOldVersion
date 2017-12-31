@@ -3,6 +3,7 @@ package simulator;
 public class Edge {
 	//We may consider adding edge ID here in case there exist multiple edges between nodes
 	//Second reason is that it would be easier to get all related info about an edge in Q(1) time
+	static int ID;
 	int firstNode;
 	int secondNode;
 	int cost;
@@ -10,6 +11,7 @@ public class Edge {
 	final int EDGECAPACITY = 200;
 	int count;
 	public Edge(int firstNode,int secondNode,int cost) {
+		ID++;
 		this.firstNode=firstNode;
 		this.secondNode=secondNode;
 		this.cost=cost;
@@ -17,6 +19,7 @@ public class Edge {
 	}
 	
 	public Edge(Edge e) {
+		this.ID = e.ID;
 		this.firstNode=e.firstNode;
 		this.secondNode=e.secondNode;
 		this.cost=e.cost;
