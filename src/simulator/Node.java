@@ -78,8 +78,59 @@ public class Node implements Comparable{
 			return -1;
 		}
 	}
+	public void initialize1DijEvents(int simStep) {
+		Random rand = new Random(simStep);
+		int event_time;
+		int event_type = 0; //initial ones should be a send event
 
-	public void initializeEvents(int simStep) {
+		String prefixName;
+		int prefDataSize = 1000;
+		Prefix pref;
+
+		int packetDestID;
+		int packetType =0; //initial ones should be a interest packet
+		Queue<Integer> pathInfo;
+		Packet p;
+		Event e; 
+		int producer_size;
+		for (int i =0; i< demandedPrefixes.size(); i++) {
+			PriorityQueue<PathChoice> pathOrder = new PriorityQueue<PathChoice>();
+			prefixName = demandedPrefixes.get(i);
+			pref = new Prefix(prefixName, prefDataSize);
+			event_time = 1; //rand.nextInt(simStep);
+			producer_size = routingTable.get(prefixName).size(); 
+			for (int j = 0; j<producer_size; j++) {
+				packetDestID = routingTable.get(prefixName).get(j);
+				ForwardingTableRow ftr = forwardingtable.get(packetDestID);
+				if(ftr.q1cost != 0) {
+					pathOrder.add(new PathChoice(packetDestID, 1, ftr.q1cost));
+				}
+			}
+
+			int totalPacket = 30;
+			PathChoice pc = pathOrder.poll();
+			//System.out.println("NodeID: " + this.nodeID + " destID: " + pc.destinationNodeId + " and prefix: " + prefixName );
+			pathInfo = forwardingtable.get(pc.destinationNodeId).q1;
+			int[] tmp = new int[pathInfo.size()];
+			for(int a = 0 ;a<tmp.length;a++) {
+				tmp[a]=pathInfo.poll();
+				pathInfo.add(tmp[a]);
+			}
+			for(int numPacket = 0; numPacket<totalPacket; numPacket++) {
+				packetDestID = pc.destinationNodeId;
+				Queue <Integer> tmpPathInfo = new LinkedList<Integer>();
+				for(int a = 0 ;a<tmp.length;a++) {
+					tmpPathInfo.add(tmp[a]);
+				}
+				p = new Packet(this.nodeID, packetDestID,packetType, pref, tmpPathInfo);
+				e = new Event(event_type, event_time);
+				e.addPacket(p);
+				Simulator.addEventQueue(e);	
+			}
+
+		}
+	}
+	public void initialize3DijEvents(int simStep) {
 		Random rand = new Random(simStep);
 		int event_time;
 		int event_type = 0; //initial ones should be a send event

@@ -36,19 +36,36 @@ public class Simulator {
 		this.time = time;
 		eventQueue = new PriorityQueue<Event>();
 	}
-	public void initialize() {
+	public void initialize(int simType) {
 		//initialize all routes and paths
 		//initialize events
 		//we do not change link costs right now but can change it easily
 		for(int i = 0 ; i < nodes.size() ; i++ ) {
 			run3DegDijsktra(i);
 			fillRoutingTable(i);
-			nodes.get(i).initializeEvents(MaxSimulationStep);
+		}
+		
+		switch(simType) {
+		case 1:
+			for(int i = 0 ; i < nodes.size() ; i++ ) {
+				nodes.get(i).initialize1DijEvents(MaxSimulationStep);
+			}
+			break;
+		case 3:
+			for(int i = 0 ; i < nodes.size() ; i++ ) {
+				nodes.get(i).initialize3DijEvents(MaxSimulationStep);
+			}
+			break;
+		default: //3WayDijsktra runs
+			for(int i = 0 ; i < nodes.size() ; i++ ) {
+				nodes.get(i).initialize3DijEvents(MaxSimulationStep);
+			}
+		break;
 		}
 	}
-	public void run() throws IOException {
+	public void run(int simType) throws IOException {
 		BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"));
-		initialize();
+		initialize(simType);
 		Event evt;
 		while(!eventQueue.isEmpty()) {
 			System.out.println(eventQueue.size());
