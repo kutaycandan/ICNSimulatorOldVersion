@@ -93,42 +93,44 @@ public class Node implements Comparable{
 		Packet p;
 		Event e; 
 		int producer_size;
-		for (int i =0; i< demandedPrefixes.size(); i++) {
-			PriorityQueue<PathChoice> pathOrder = new PriorityQueue<PathChoice>();
-			prefixName = demandedPrefixes.get(i);
-			pref = new Prefix(prefixName, prefDataSize);
-			event_time = 1; //rand.nextInt(simStep);
-			producer_size = routingTable.get(prefixName).size(); 
-			for (int j = 0; j<producer_size; j++) {
-				packetDestID = routingTable.get(prefixName).get(j);
-				ForwardingTableRow ftr = forwardingtable.get(packetDestID);
-				if(ftr.q1cost != 0) {
-					pathOrder.add(new PathChoice(packetDestID, 1, ftr.q1cost));
+		for (int time = 1; time<simStep; time+=10){
+			for (int i =0; i< demandedPrefixes.size(); i++) {
+				PriorityQueue<PathChoice> pathOrder = new PriorityQueue<PathChoice>();
+				prefixName = demandedPrefixes.get(i);
+				pref = new Prefix(prefixName, prefDataSize);
+				event_time = time; //rand.nextInt(simStep);
+				producer_size = routingTable.get(prefixName).size(); 
+				for (int j = 0; j<producer_size; j++) {
+					packetDestID = routingTable.get(prefixName).get(j);
+					ForwardingTableRow ftr = forwardingtable.get(packetDestID);
+					if(ftr.q1cost != 0) {
+						pathOrder.add(new PathChoice(packetDestID, 1, ftr.q1cost));
+					}
 				}
-			}
 
-			int totalPacket = 30;
-			PathChoice pc = pathOrder.poll();
-			//System.out.println("NodeID: " + this.nodeID + " destID: " + pc.destinationNodeId + " and prefix: " + prefixName );
-			pathInfo = forwardingtable.get(pc.destinationNodeId).q1;
-			int[] tmp = new int[pathInfo.size()];
-			for(int a = 0 ;a<tmp.length;a++) {
-				tmp[a]=pathInfo.poll();
-				pathInfo.add(tmp[a]);
-			}
-			for(int numPacket = 0; numPacket<totalPacket; numPacket++) {
-				packetDestID = pc.destinationNodeId;
-				Queue <Integer> tmpPathInfo = new LinkedList<Integer>();
+				int totalPacket = 30;
+				PathChoice pc = pathOrder.poll();
+				//System.out.println("NodeID: " + this.nodeID + " destID: " + pc.destinationNodeId + " and prefix: " + prefixName );
+				pathInfo = forwardingtable.get(pc.destinationNodeId).q1;
+				int[] tmp = new int[pathInfo.size()];
 				for(int a = 0 ;a<tmp.length;a++) {
-					tmpPathInfo.add(tmp[a]);
+					tmp[a]=pathInfo.poll();
+					pathInfo.add(tmp[a]);
 				}
-				p = new Packet(this.nodeID, packetDestID,packetType, pref, tmpPathInfo);
-				e = new Event(event_type, event_time);
-				e.addPacket(p);
-				Simulator.addEventQueue(e);	
-			}
-
+				for(int numPacket = 0; numPacket<totalPacket; numPacket++) {
+					packetDestID = pc.destinationNodeId;
+					Queue <Integer> tmpPathInfo = new LinkedList<Integer>();
+					for(int a = 0 ;a<tmp.length;a++) {
+						tmpPathInfo.add(tmp[a]);
+					}
+					p = new Packet(this.nodeID, packetDestID,packetType, pref, tmpPathInfo);
+					e = new Event(event_type, event_time);
+					e.addPacket(p);
+					Simulator.addEventQueue(e);	
+				}
+			} /// for each prefix initialization is done here
 		}
+		
 	}
 	public void initialize3DijEvents(int simStep) {
 		Random rand = new Random(simStep);
@@ -145,89 +147,90 @@ public class Node implements Comparable{
 		Packet p;
 		Event e; 
 		int producer_size;
-		for (int i =0; i< demandedPrefixes.size(); i++) {
-			PriorityQueue<PathChoice> pathOrder = new PriorityQueue<PathChoice>();
-			prefixName = demandedPrefixes.get(i);
-			pref = new Prefix(prefixName, prefDataSize);
-			event_time = 1; //rand.nextInt(simStep);
-			producer_size = routingTable.get(prefixName).size(); 
-			for (int j = 0; j<producer_size; j++) {
-				packetDestID = routingTable.get(prefixName).get(j);
-				ForwardingTableRow ftr = forwardingtable.get(packetDestID);
-				if(ftr.q1cost != 0) {
-					pathOrder.add(new PathChoice(packetDestID, 1, ftr.q1cost));
-				}
-				if(ftr.q2cost != 0) {
-					pathOrder.add(new PathChoice(packetDestID,2, ftr.q2cost));
-				}
-				if(ftr.q3cost != 0) {
-					pathOrder.add(new PathChoice(packetDestID,3, ftr.q3cost));
-				}
+		for (int time = 1; time<simStep; time+=10) {
+			for (int i =0; i< demandedPrefixes.size(); i++) {
+				PriorityQueue<PathChoice> pathOrder = new PriorityQueue<PathChoice>();
+				prefixName = demandedPrefixes.get(i);
+				pref = new Prefix(prefixName, prefDataSize);
+				event_time = time; //rand.nextInt(simStep);
+				producer_size = routingTable.get(prefixName).size(); 
+				for (int j = 0; j<producer_size; j++) {
+					packetDestID = routingTable.get(prefixName).get(j);
+					ForwardingTableRow ftr = forwardingtable.get(packetDestID);
+					if(ftr.q1cost != 0) {
+						pathOrder.add(new PathChoice(packetDestID, 1, ftr.q1cost));
+					}
+					if(ftr.q2cost != 0) {
+						pathOrder.add(new PathChoice(packetDestID,2, ftr.q2cost));
+					}
+					if(ftr.q3cost != 0) {
+						pathOrder.add(new PathChoice(packetDestID,3, ftr.q3cost));
+					}
 
-			}
-			int poSize = pathOrder.size();
-			int totalPacket = 30/Math.min(3, poSize);
-			for(int w =0; w < poSize; w++) {
-				if(w ==3) {
-					break;
 				}
-				PathChoice pc = pathOrder.poll();
-				//System.out.println("NodeID: " + this.nodeID + " destID: " + pc.destinationNodeId + " and prefix: " + prefixName );
-				if(pc.queueId == 1) {
-					pathInfo = forwardingtable.get(pc.destinationNodeId).q1;
-					/*System.out.println("queueID:1 path:");
-					for (int anan = 0; anan<pathInfo.size(); anan++) {
-						int dummy =pathInfo.poll();
-						System.out.print(dummy +  " - ");
-						pathInfo.add(dummy);
+				int poSize = pathOrder.size();
+				int totalPacket = 30/Math.min(3, poSize);
+				for(int w =0; w < poSize; w++) {
+					if(w ==3) {
+						break;
 					}
-					System.out.println(); */
-				} else if(pc.queueId == 2) {
-					pathInfo = forwardingtable.get(pc.destinationNodeId).q2;
-					/*System.out.println("queueID:2 path:");
-					for (int anan = 0; anan<pathInfo.size(); anan++) {
-						int dummy =pathInfo.poll();
-						System.out.print(dummy +  " - ");
-						pathInfo.add(dummy);
+					PathChoice pc = pathOrder.poll();
+					//System.out.println("NodeID: " + this.nodeID + " destID: " + pc.destinationNodeId + " and prefix: " + prefixName );
+					if(pc.queueId == 1) {
+						pathInfo = forwardingtable.get(pc.destinationNodeId).q1;
+						/*System.out.println("queueID:1 path:");
+						for (int anan = 0; anan<pathInfo.size(); anan++) {
+							int dummy =pathInfo.poll();
+							System.out.print(dummy +  " - ");
+							pathInfo.add(dummy);
+						}
+						System.out.println(); */
+					} else if(pc.queueId == 2) {
+						pathInfo = forwardingtable.get(pc.destinationNodeId).q2;
+						/*System.out.println("queueID:2 path:");
+						for (int anan = 0; anan<pathInfo.size(); anan++) {
+							int dummy =pathInfo.poll();
+							System.out.print(dummy +  " - ");
+							pathInfo.add(dummy);
+						}
+						System.out.println(); */
+					} else {
+						pathInfo = forwardingtable.get(pc.destinationNodeId).q3;
+						//System.out.println("queueID:3 path:");
+						/*for (int anan = 0; anan<pathInfo.size(); anan++) {
+							int dummy =pathInfo.poll();
+							System.out.print(dummy +  " - ");
+							pathInfo.add(dummy);
+						}
+						System.out.println(); */
 					}
-					System.out.println(); */
-				} else {
-					pathInfo = forwardingtable.get(pc.destinationNodeId).q3;
-					//System.out.println("queueID:3 path:");
-					/*for (int anan = 0; anan<pathInfo.size(); anan++) {
-						int dummy =pathInfo.poll();
-						System.out.print(dummy +  " - ");
-						pathInfo.add(dummy);
-					}
-					System.out.println(); */
-				}
-				int[] tmp = new int[pathInfo.size()];
-				for(int a = 0 ;a<tmp.length;a++) {
-					tmp[a]=pathInfo.poll();
-					pathInfo.add(tmp[a]);
-				}
-				for(int numPacket = 0; numPacket<totalPacket; numPacket++) {
-					packetDestID = pc.destinationNodeId;
-					Queue <Integer> tmpPathInfo = new LinkedList<Integer>();
+					int[] tmp = new int[pathInfo.size()];
 					for(int a = 0 ;a<tmp.length;a++) {
-						tmpPathInfo.add(tmp[a]);
+						tmp[a]=pathInfo.poll();
+						pathInfo.add(tmp[a]);
 					}
-					p = new Packet(this.nodeID, packetDestID,packetType, pref, tmpPathInfo);
-					e = new Event(event_type, event_time);
-					e.addPacket(p);
-					/*System.out.println("sourceID: " + p.sourceID +  " destID: " + p.destinatonID + " event time: " + event_time);
-					for (int anan = 0; anan<p.path.size(); anan++) {
-						int dummy =pathInfo.poll();
-						System.out.print(dummy +  " - ");
-						pathInfo.add(dummy);
-					} 
-					System.out.println(); */
-					Simulator.addEventQueue(e);	
-				}
-			}	
-
-
+					for(int numPacket = 0; numPacket<totalPacket; numPacket++) {
+						packetDestID = pc.destinationNodeId;
+						Queue <Integer> tmpPathInfo = new LinkedList<Integer>();
+						for(int a = 0 ;a<tmp.length;a++) {
+							tmpPathInfo.add(tmp[a]);
+						}
+						p = new Packet(this.nodeID, packetDestID,packetType, pref, tmpPathInfo);
+						e = new Event(event_type, event_time);
+						e.addPacket(p);
+						/*System.out.println("sourceID: " + p.sourceID +  " destID: " + p.destinatonID + " event time: " + event_time);
+						for (int anan = 0; anan<p.path.size(); anan++) {
+							int dummy =pathInfo.poll();
+							System.out.print(dummy +  " - ");
+							pathInfo.add(dummy);
+						} 
+						System.out.println(); */
+						Simulator.addEventQueue(e);	
+					}
+				}	
+			}  ///for each prefix initialization is done here
 		}
+
 	}
 	public void initialSend(Event evt) {
 		if(evt.event_packet.type == 0) //if it is an interest packet, return path should be added

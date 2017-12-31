@@ -12,7 +12,7 @@ import java.util.Queue;
 
 public class Simulator {
 	static PriorityQueue<Event> eventQueue;
-	static int MaxSimulationStep = 10;
+	static int MaxSimulationStep = 20;
 	final int infinity = 2000000000;
 
 	ArrayList <Node> nodes = new ArrayList<Node>();
@@ -71,7 +71,7 @@ public class Simulator {
 			//System.out.println(eventQueue.size());
 			evt = eventQueue.poll();//it is time to do this event
 			//System.out.println(evt.toString());
-			writer.write(evt.toString());
+			///////writer.write(evt.toString());//////WRITE INTO THE OUTPUT FILE HERE
 			if(evt.event_type == 0) { //send an event
 				if(evt.event_packet.sourceID == evt.event_packet.path.peek()) { //initial send
 					nodes.get(evt.event_packet.path.peek()).initialSend(evt);
