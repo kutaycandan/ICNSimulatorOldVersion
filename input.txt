@@ -4,7 +4,7 @@ prefix2-1024
 prefix3-1024
 prefix4-1024
 prefix5-1024
-Node(number of nodes)-10
+Node(number of nodes)-13
 Node served prefix tuples
 0-prefix1-prefix3
 1-prefix2-prefix4
@@ -16,18 +16,24 @@ Node served prefix tuples
 7-prefix5-prefix4
 8-prefix2-prefix5
 9-prefix3-prefix5
+10-prefix1-prefix5
+11-prefix5
+12-prefix4
 Node demanded prefix tuples
-0-prefix3
+0-prefix2
 1-prefix1
-2-prefix4
-3-prefix2-prefix5
-4-prefix3
-5-prefix5-prefix1
-6-prefix1-prefix2-prefix3
+2-prefix5
+3-prefix4-prefix5
+4-prefix4
+5-prefix2-prefix4
+6-prefix2-prefix3
 7-prefix2
 8-prefix3
-9-prefix5-prefix2-prefix1
-Edge(first node, second node, cost)-20
+9-prefix2-prefix1
+10-prefix3
+11-prefix1-prefix2
+12-prefix3
+Edge(first node, second node, cost)-30
 0-1-30
 1-5-90
 0-2-80
@@ -48,3 +54,13 @@ Edge(first node, second node, cost)-20
 3-9-70
 6-9-20
 8-9-50
+0-10-30
+1-10-80
+5-10-70
+10-11-120
+5-11-30
+4-11-20
+11-12-60
+7-12-80
+8-12-50
+4-12-30

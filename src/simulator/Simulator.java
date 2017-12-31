@@ -237,7 +237,8 @@ public class Simulator {
 				levelThreeVisitedNodes[currentNode.nodeID]+=1;
 			}
 		}
-		
+		//System.out.println(nodeID + ": " + Arrays.toString(path2Distance));
+		//System.out.println(nodeID + ": " + Arrays.toString(path2Previous));
 		//Build forwarding table of each node
 		for(int i =0; i < nodes.size(); i++) {
 			buildForwardingTable(1, nodeID, i, levelOnePathBuilding(i,nodeID));
@@ -275,7 +276,7 @@ public class Simulator {
 			if( dist < path2Distance[prev]){
 				path += prev+"-";
 				return path + levelOnePathBuilding(prev, nodeID); //it goes level 1
-			} else if(dist == path2Distance[prev] && path2Previous[prev] !=init) {//can go up only one level 
+			} else if(dist == path2Distance[prev]) {// && path2Previous[prev] !=init) {//can go up only one level 
 				path += prev+"-";
 				init = prev;
 				prev = path2Previous[prev];
@@ -305,7 +306,7 @@ public class Simulator {
 					path += prev+"-";
 					return path + levelOnePathBuilding(prev, nodeID);
 				}
-			} else if(dist == path3Distance[prev] && path3Previous[prev] !=init) {
+			} else if(dist == path3Distance[prev]) { // && path3Previous[prev] !=init) {
 				path += prev+"-";
 				init = prev;
 				prev = path3Previous[prev];
