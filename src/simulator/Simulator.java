@@ -11,13 +11,13 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class Simulator {
-	static PriorityQueue<Event> eventQueue;
-	static int MaxSimulationStep = 10;
+	static PriorityQueue<Event> eventQueue; //global event node
+	static int MaxSimulationStep = 100; //maximum step number of the simulation
 	final int infinity = 2000000000;
 
-	ArrayList <Node> nodes = new ArrayList<Node>();
+	ArrayList <Node> nodes = new ArrayList<Node>(); //List of all nodes
 	static HashMap <String,Edge> edges = new HashMap<String,Edge>();  //Please add an edge with following format: "<firstNodeID>-<secondNodeID>
-	ArrayList <Prefix> prefixes = new ArrayList<Prefix>();
+	ArrayList <Prefix> prefixes = new ArrayList<Prefix>();  //List of all prefixes
 	int [] path1Distance;
 	int [] path2Distance;
 	int [] path3Distance; 
@@ -39,7 +39,6 @@ public class Simulator {
 	public void initialize(int simType) {
 		//initialize all routes and paths
 		//initialize events
-		//we do not change link costs right now but can change it easily
 		for(int i = 0 ; i < nodes.size() ; i++ ) {
 			run3DegDijsktra(i);
 			fillRoutingTable(i);
@@ -56,45 +55,41 @@ public class Simulator {
 				nodes.get(i).initialize3DijEvents(MaxSimulationStep);
 			}
 			break;
-		default: //3WayDijsktra runs
+		default: //3DegreeDijsktra runs by default
 			for(int i = 0 ; i < nodes.size() ; i++ ) {
 				nodes.get(i).initialize3DijEvents(MaxSimulationStep);
 			}
 		break;
 		}
 	}
+	/*
+	 * The simulation
+	 */
 	public void run(int simType) throws IOException {
 		BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"));
 		initialize(simType);
 		Event evt;
 		while(!eventQueue.isEmpty()) {
-			//System.out.println(eventQueue.size());
 			evt = eventQueue.poll();//it is time to do this event
-			//System.out.println(evt.toString());
 			writer.write(evt.toString());
 			if(evt.event_type == 0) { //send an event
-				if(evt.event_packet.sourceID == evt.event_packet.path.peek()) { //initial send
+				if(evt.event_packet.sourceID == evt.event_packet.path.peek()) { //initial send, all other sends are called by receive method
 					nodes.get(evt.event_packet.path.peek()).initialSend(evt);
 				}
 			} else { //receive an event
 				nodes.get(evt.event_packet.path.peek()).receivePacket(evt);
 			}
 		}
-
-
-		//System.out.println("Surprise!!!");
 		calculateEdgeCount();
 		writer.close();
 	}
-
+	/*
+	 * Calculate how many packets passed through an edge and write it into a file
+	 */
 	public void calculateEdgeCount () {
 		BufferedWriter bw = null;
 		FileWriter fw = null;
-
 		try {
-
-			
-
 			fw = new FileWriter("edgeload.txt");
 			bw = new BufferedWriter(fw);
 			int count = 0;
@@ -114,19 +109,16 @@ public class Simulator {
 				
 				if (count == 2) {
 					count = 0;
-					System.out.println(firstNode + " - "  +  secondNode + " " +Arrays.toString(tmp));
+					//System.out.println(firstNode + " - "  +  secondNode + " " +Arrays.toString(tmp));
 					bw.write(firstNode + " - "  +  secondNode + " " +Arrays.toString(tmp)+"\n");
 				}
 			}
-			
 			bw.close();
 			fw.close();
 			System.out.println("Done");
 
 		} catch (IOException e) {
-
 			e.printStackTrace();
-
 		}
 		
 	}
@@ -139,14 +131,19 @@ public class Simulator {
 	public static Event firstEventFromQueue() {
 		return eventQueue.poll();
 	}
+	/*
+	 * Construct the RoutingTable which holds information of who serves what for each nodes 
+	 */
 	public void fillRoutingTable(int nodeID) {
 		Node node = nodes.get(nodeID);
 		for(int i = 0 ; i<prefixes.size();i++) {
 			node.addRoutingTable(prefixes.get(i).getName(), prefixes.get(i).getServingNode());
 		}
-
 	}
-
+	/*
+	 * Calculates three different way to go from the currentNode to all other nodes
+	 * @param:nodeID the node that 3-Degree-Dijsktra runs currently
+	 */
 	public void run3DegDijsktra(int nodeID) {
 		PriorityQueue <Node>heap = new PriorityQueue<Node>(); //Holds next node which has the minimum distance
 		Node initialNode; //The node that Dijsktra start running
@@ -240,25 +237,18 @@ public class Simulator {
 				levelThreeVisitedNodes[currentNode.nodeID]+=1;
 			}
 		}
-		//System.out.println("For node: "+nodeID + " path1= "+Arrays.toString(path1Previous));
-		//System.out.println("For node: "+nodeID + " path1= "+Arrays.toString(path1Distance));
-		//System.out.println("For node: "+nodeID + " path2= "+Arrays.toString(path2Previous));
-		//System.out.println("For node: "+nodeID + " path2= "+Arrays.toString(path2Distance));
-		//System.out.println("For node: "+nodeID + " path3= "+Arrays.toString(path3Previous));
-		//System.out.println("For node: "+nodeID + " path3= "+Arrays.toString(path3Distance)); 
+		
+		//Build forwarding table of each node
 		for(int i =0; i < nodes.size(); i++) {
-			//System.out.println(levelTwoPathBuilding(i,nodeID));
 			buildForwardingTable(1, nodeID, i, levelOnePathBuilding(i,nodeID));
 			buildForwardingTable(2, nodeID, i, levelTwoPathBuilding(i,nodeID));
 			buildForwardingTable(3, nodeID, i, levelThreePathBuilding(i,nodeID));
 		} 
-		//System.out.println("init:"+nodeID+" to 5: "+levelOnePathBuilding(5,nodeID));
-		//System.out.println("init:"+nodeID+" to 0: "+levelOnePathBuilding(0,nodeID));
-		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q1.toString());
-		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q2.toString());
-		//System.out.println(nodes.get(nodeID).forwardingtable.get(5).q3.toString());
 	}
-
+	
+	/*
+	 * Construct Level 1 pathInfo
+	 */
 	public String levelOnePathBuilding(int init, int nodeID) {
 		String path = "";
 		int prev;
@@ -271,7 +261,9 @@ public class Simulator {
 		path +=""+nodeID;
 		return path;
 	}
-
+	/*
+	 * Construct Level 2 pathInfo
+	 */
 	public String levelTwoPathBuilding(int init, int nodeID) {
 		String path = "";
 		int prev;
@@ -279,17 +271,11 @@ public class Simulator {
 		//////////////////////Path2//////////////////////////
 		prev = path2Previous[init];
 		while(prev!=nodeID) {
-			if(!edges.containsKey(""+init+"-"+prev)) {
-				//System.out.println(init + "     " + prev);
-				//System.out.println(edges.get("3-1"));
-			}
-
-
 			dist = path2Distance[init]-edges.get(""+init+"-"+prev).cost;
 			if( dist < path2Distance[prev]){
 				path += prev+"-";
-				return path + levelOnePathBuilding(prev, nodeID);
-			} else if(dist == path2Distance[prev] && path2Previous[prev] !=init) {
+				return path + levelOnePathBuilding(prev, nodeID); //it goes level 1
+			} else if(dist == path2Distance[prev] && path2Previous[prev] !=init) {//can go up only one level 
 				path += prev+"-";
 				init = prev;
 				prev = path2Previous[prev];
@@ -298,7 +284,9 @@ public class Simulator {
 		path +=""+nodeID;	
 		return path;
 	}
-
+	/*
+	 * Construct Level 3 pathInfo
+	 */
 	public String levelThreePathBuilding(int init, int nodeID) {
 		String path="";
 		int prev;
@@ -307,8 +295,7 @@ public class Simulator {
 		prev = path3Previous[init];
 		while(prev!=nodeID) {
 			dist = path3Distance[init]-edges.get(""+init+"-"+prev).cost;
-			//System.out.println("prev: " + prev+ " dist: " + dist);
-			if( dist < path3Distance[prev] || (dist==path3Distance[prev]&& path3Previous[prev] ==init)){ //can go up only one level or two levels
+			if( dist < path3Distance[prev] || (dist==path3Distance[prev]&& path3Previous[prev] ==init)){ //can go up one level or two levels
 				int dist2 = path2Distance[prev];  //distance if it came from level 2
 				int dist1 = path1Distance[prev];  //distance if it came from level 1
 				if(dist2 == dist) { //it goes level 2
@@ -327,11 +314,19 @@ public class Simulator {
 		path +=""+nodeID;	
 		return path;
 	}
-
+	/*
+	 * This method constructs the ForwardingTable
+	 * @param:pathId refers which path information will be updated
+	 * @param:initialNode refers node of which ForwardingTable table belongs
+	 * @param:targetNode refers index of ForwardingTable
+	 * @param:path refers the path in between initial and target node
+	 */
 	public void buildForwardingTable(int pathId, int initialNode, int targetNode, String path) {
 		String[] pathInfo = path.split("-");
 		HashMap <Integer, ForwardingTableRow> fwTable = nodes.get(initialNode).forwardingtable;
 		//Check if a row is previously added
+		//If so, just update the row
+		//If not, create the row
 		ForwardingTableRow row; 
 		if(!fwTable.isEmpty()) {
 			if(fwTable.containsKey(targetNode)) {
@@ -344,12 +339,12 @@ public class Simulator {
 		}
 		Queue<Integer> list = new LinkedList <Integer>();
 		int pathCost = pathCost(initialNode,targetNode,path);
-		//construct the path
+		//Construct the path as a list from path string
 		for(int i = pathInfo.length-1 ; i>=0; i--) {
 			list.add(Integer.parseInt(pathInfo[i]));
 		}
 		list.add(targetNode);
-		//choose which row
+		//Choose which path should be updated.
 		if(pathId == 1) {
 			row.q1 = list;
 			row.q1cost = pathCost;
@@ -363,7 +358,12 @@ public class Simulator {
 
 		fwTable.put(targetNode, row);
 	}
-	//Path cost calculation
+	/*
+	 * Calculate the cost of an path
+	 * @param: start node
+	 * @param: end node
+	 * @param: path of between start and end node, nodeIDs are separated by -
+	 */
 	public int pathCost(int initialNode,int targetNode, String path) {
 		String[] pathInfo = path.split("-");
 		int cost = 0;

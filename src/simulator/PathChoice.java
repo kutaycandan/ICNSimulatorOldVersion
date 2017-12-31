@@ -5,12 +5,19 @@ public class PathChoice implements Comparable {
 	int queueId;
 	int cost;
 	
-	 public PathChoice(int destinationNodeId, int queueId, int cost) {
+	public PathChoice(int destinationNodeId, int queueId, int cost) {
 		this.destinationNodeId = destinationNodeId;
 		this.queueId = queueId;
 		this.cost = cost;
 	}
-	
+	/*
+	 * Identify the order of different paths
+	 * Smallest cost is preferred 
+	 * If costs are equal smallest pathOrder number is preferred (Node7.q1.cost = Node5.q2.cost, q1 and q2 path order number)
+	 * If costs and pathOrder numbers are equal than the node of smallest id/name is preferred
+	 * (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
 	@Override
 	public int compareTo(Object o) {
 		if(this.cost == ((PathChoice)o).cost) {

@@ -8,10 +8,14 @@ public class Event implements Comparable{
 		this.event_type = e_type;  
 		this.event_time = e_time; 
 	}
+	/* Event that has smaller time unit comes first
+	 * (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
 	@Override
 	public int compareTo(Object evt) {
 		if(this.event_time == ((Event)evt).event_time) {
-			return 1;
+			return 0;
 		} else if ( this.event_time > ((Event)evt).event_time) {
 			return 1;
 		} else {
@@ -21,6 +25,11 @@ public class Event implements Comparable{
 	public void addPacket(Packet p) {
 		this.event_packet = p;
 	}
+	/*
+	 * It is for debug purposes
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return "Event type: "+event_type+ " at time "+ event_time + " and the packet is " + event_packet.type + "\n"

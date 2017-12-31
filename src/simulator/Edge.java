@@ -1,15 +1,12 @@
 package simulator;
 
 public class Edge {
-	//We may consider adding edge ID here in case there exist multiple edges between nodes
-	//Second reason is that it would be easier to get all related info about an edge in Q(1) time
+	final int EDGECAPACITY = 200; //Maximum number of packet that can be passed through an edge in a unit time is assumed to be 200
 	static int ID;
 	int firstNode;
 	int secondNode;
 	int cost;
-	int[] countList;
-	final int EDGECAPACITY = 200;
-	int count;
+	int[] countList; //countList[x]=20 means at time x, 20 packet pass through this edge
 	public Edge(int firstNode,int secondNode,int cost) {
 		ID++;
 		this.firstNode=firstNode;
@@ -17,7 +14,7 @@ public class Edge {
 		this.cost=cost;
 		countList = new int [Simulator.MaxSimulationStep];
 	}
-	
+	//Copy constructor for Edge
 	public Edge(Edge e) {
 		this.ID = e.ID;
 		this.firstNode=e.firstNode;

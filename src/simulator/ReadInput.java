@@ -34,9 +34,7 @@ public class ReadInput {
 			sc.nextLine();
 			for(int i = 0 ; i < numberOfNodes ; i ++) {
 				String[] nodeInfo = sc.nextLine().split("-");
-				//System.out.println(nodeInfo.length);
 				for(int j = 0 ; j < nodeInfo.length -1 ; j ++ ) {
-					//System.out.println("Node ID: "+ );
 					prefixes.get(getPrefixID(nodeInfo[j+1])).addServingNode(i);
 					nodes.get(Integer.parseInt(nodeInfo[0])).addServedPrefix(nodeInfo[j+1]);
 				}
@@ -60,7 +58,6 @@ public class ReadInput {
 				nodes.get(Integer.parseInt(edgeInfo[1])).addEdge(Integer.parseInt(edgeInfo[0]),edge2);
 			}
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.out.println("Has file problem.");
 		}
