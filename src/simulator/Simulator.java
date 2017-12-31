@@ -88,9 +88,47 @@ public class Simulator {
 	}
 
 	public void calculateEdgeCount () {
-		for(Edge e: edges.values()) {
-			System.out.println(e.firstNode + " - "  +  e.secondNode + " " +Arrays.toString(e.countList));
+		BufferedWriter bw = null;
+		FileWriter fw = null;
+
+		try {
+
+			
+
+			fw = new FileWriter("edgeload.txt");
+			bw = new BufferedWriter(fw);
+			int count = 0;
+			int[] tmp = new int[MaxSimulationStep];
+			int firstNode=0;
+			int secondNode=0;
+			for(Edge e: edges.values()) {
+				if(count==0) {
+					tmp = new int[MaxSimulationStep];
+					firstNode=e.firstNode;
+					secondNode=e.secondNode;
+				}
+				count++;
+				for(int i =0;i<tmp.length;i++) {
+					tmp[i]+=e.countList[i];
+				}
+				
+				if (count == 2) {
+					count = 0;
+					System.out.println(firstNode + " - "  +  secondNode + " " +Arrays.toString(tmp));
+					bw.write(firstNode + " - "  +  secondNode + " " +Arrays.toString(tmp)+"\n");
+				}
+			}
+			
+			bw.close();
+			fw.close();
+			System.out.println("Done");
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+
 		}
+		
 	}
 	public void setSimulationStep (int simStep) {
 		MaxSimulationStep = simStep;
