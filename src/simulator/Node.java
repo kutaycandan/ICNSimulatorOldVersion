@@ -150,10 +150,18 @@ public class Node implements Comparable{
 					}
 					System.out.println(); */
 				}
-				
+				int[] tmp = new int[pathInfo.size()];
+				for(int a = 0 ;a<tmp.length;a++) {
+					tmp[a]=pathInfo.poll();
+					pathInfo.add(tmp[a]);
+				}
 				for(int numPacket = 0; numPacket<totalPacket; numPacket++) {
 					packetDestID = pc.destinationNodeId;
-					p = new Packet(this.nodeID, packetDestID,packetType, pref, pathInfo);
+					Queue <Integer> tmpPathInfo = new LinkedList<Integer>();
+					for(int a = 0 ;a<tmp.length;a++) {
+						tmpPathInfo.add(tmp[a]);
+					}
+					p = new Packet(this.nodeID, packetDestID,packetType, pref, tmpPathInfo);
 					e = new Event(event_type, event_time);
 					e.addPacket(p);
 					/*System.out.println("sourceID: " + p.sourceID +  " destID: " + p.destinatonID + " event time: " + event_time);

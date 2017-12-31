@@ -23,10 +23,15 @@ public class Packet {
 		this.destinatonID = destinationID;
 		this.type = type;   //0 interest 1 data 
 		this.prefix= pref; 
-		this.path = pathInfo;
+		/*int size = pathInfo.size();
+		for(int i = 0 ; i< size;i++) {
+			this.path.add(pathInfo.remove());
+		}*/
+		this.path=pathInfo;
+		
 	}
 	//Data Packet Constructor
-	public Packet(int sourceID , int destinationID, int type ,Queue<Integer> returnPathInfo) {
+	public Packet(int sourceID , int destinationID, int type ,Queue<Integer> pathInfo) {
 		ID++;
 		size =1024;
 		hopNumber = 0;
@@ -34,7 +39,11 @@ public class Packet {
 		this.sourceID = sourceID;
 		this.destinatonID = destinationID;
 		this.type = type;   //0 interest 1 data 
-		this.path = returnPathInfo;
+		/*int size = pathInfo.size();
+		for(int i = 0 ; i< size;i++) {
+			this.path.add(pathInfo.remove());
+		}*/
+		this.path=pathInfo;
 	}
 	
 	

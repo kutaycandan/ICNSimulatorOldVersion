@@ -53,10 +53,15 @@ public class Simulator {
 		while(!eventQueue.isEmpty()) {
 			System.out.println(eventQueue.size());
 			evt = eventQueue.poll();//it is time to do this event
+			System.out.println(evt.toString());
 			writer.write(evt.toString());
 			if(evt.event_type == 0) { //send an event
 				if(evt.event_packet.sourceID == evt.event_packet.path.peek()) { //initial send
 					nodes.get(evt.event_packet.path.peek()).initialSend(evt);
+				}
+				else {
+					System.out.println("lol");
+					//eventQueue.add(evt);
 				}
 			} else { //receive an event
 				nodes.get(evt.event_packet.path.peek()).receivePacket(evt);
